@@ -51,14 +51,18 @@ def setup():
     ao()
     enable_servo(c.CLAW_SERVO)
     enable_servo(c.ARM_SERVO)
-    set_servo_position(c.CLAW_SERVO, c.STARTING_CLAW_POS)
-    set_servo_position(c.ARM_SERVO, c.STARTING_ARM_POS)
-    #msleep(1000)
+    enable_servo(c.CUBE_ARM_SERVO)
+    c.STARTING_ARM_POS = get_servo_position(c.ARM_SERVO)
+    print "STARTING_ARM_POS now: " + str(c.ARM_DOWN_POS)
+    m.move_claw(c.STARTING_CLAW_POS)
+    m.move_arm(c.STARTING_ARM_POS)
+    m.move_cube_arm(c.STARTING_CUBE_ARM_POS)
+    msleep(1000)
     #print "Set claw to starting position of %d" % c.STARTING_CLAW_POS
     #print "Set arm to starting position of %d" % c.STARTING_ARM_POS
-    #m.claw_slow(c.CLAW_PARALLEL_CLOSE_POS)
+    #m.move_claw(c.CLAW_CHECKING_POS)
     #m.wait()
-    #m.claw_slow(c.CLAW_OPEN_POS)
+    #m.move_claw(c.STARTING_CLAW_POS)
     #m.wait()
     console_clear()
     print "Setup complete\n\n"
@@ -75,12 +79,12 @@ def calibrate():
     cmpc(c.LEFT_MOTOR)
     cmpc(c.RIGHT_MOTOR)
     if c.IS_MAIN_BOT:
-        calibrate_tics = 2000
+        calibrate_tics = -2000
     else: # Clone bot
-        calibrate_tics = 2500
+        calibrate_tics = -2500
     print "Running calibrate()"
-    m.activate_motors(int (c.BASE_LM_POWER / 3), int(c.BASE_RM_POWER / 3))
-    while gmpc(c.LEFT_MOTOR) < calibrate_tics and gmpc(c.RIGHT_MOTOR) < calibrate_tics:
+    m.activate_motors(int (c.BASE_LM_POWER / 2 * -1), int(c.BASE_RM_POWER / 2 * -1))
+    while gmpc(c.LEFT_MOTOR) > calibrate_tics:
         if analog(c.RIGHT_TOPHAT) > max_sensor_value_right:
             max_sensor_value_right = analog(c.RIGHT_TOPHAT)
         if analog(c.RIGHT_TOPHAT) < min_sensor_value_right:
@@ -98,9 +102,9 @@ def calibrate():
     c.LEFT_TOPHAT_BW = int(((max_sensor_value_left + min_sensor_value_left) / 2)) - 1000
     c.RIGHT_TOPHAT_BW = int(((max_sensor_value_right + min_sensor_value_right) / 2)) - 1000
     if c.IS_MAIN_BOT:
-        c.THIRD_TOPHAT_BW = int(((max_sensor_value_third + min_sensor_value_third) / 2))
+        c.THIRD_TOPHAT_BW = int(((max_sensor_value_third + min_sensor_value_third) / 2)) + 1000
     else: # Clone bot
-        c.THIRD_TOPHAT_BW = int(((max_sensor_value_third + min_sensor_value_third) / 2))  + 300
+        c.THIRD_TOPHAT_BW = int(((max_sensor_value_third + min_sensor_value_third) / 2))  + 1000
     print "max_sensor_value_left: " + str(max_sensor_value_left)
     print "min_sensor_value_left: " + str(min_sensor_value_left)
     print "LEFT_TOPHAT_BW: " + str(c.LEFT_TOPHAT_BW)
@@ -114,14 +118,16 @@ def calibrate():
     c.MIN_TOPHAT_VALUE_RIGHT = min_sensor_value_right
     c.MAX_TOPHAT_VALUE_LEFT = max_sensor_value_left
     c.MIN_TOPHAT_VALUE_LEFT = min_sensor_value_left
-    s.backwards_through_two_lines_in_calibration()
-    s.align_close_smart()
-    m.backwards(600)
+    print "Finished Calibrating. Moving back into starting box...\n"
+    s.drive_until_black_left()
+    s.align_close()
+    s.drive_through_line_third(0)
+    m.drive(1050)
     msleep(25)
     ao()
-    msleep(1000)
-    #wait_for_light(c.LIGHT_SENSOR)
-    #shut_down_in(118)  # URGENT: PUT BACK IN BEFORE COMPETITION
+    msleep(2000)
+    wait_for_light(c.LIGHT_SENSOR)
+    shut_down_in(118)  # URGENT: PUT BACK IN BEFORE COMPETITION
 
 
 def calibrate_manually(base_time = 60):
@@ -241,13 +247,13 @@ def test_movement_extensive(exit = True):
 def test_servos(exit = True):
 # Used to see if basic servo commands and constants function as intended.
     print "Testing servos\n"
-    m.claw_slow(c.CLAW_CLOSE_POS)
+    m.close_claw()
     m.wait()  # Using wait() instead of msleep() to make sure wheels are off.
-    m.claw_slow(c.CLAW_OPEN_POS)
+    m.open_claw()
     m.wait()
-    m.arm_slow(c.ARM_DOWN_POS)
+    m.lift_arm()
     m.wait()
-    m.arm_slow(c.ARM_HIGH_POS)
+    m.lower_arm()
     m.wait()
     print "Testing complete."
     if exit == True:

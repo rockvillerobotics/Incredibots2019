@@ -20,8 +20,8 @@ if IS_MAIN_BOT:
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Motors~~~~~~~~~~~~~~~~~~~~~~~~
 
     # Motor Ports
-    LEFT_MOTOR = 3
-    RIGHT_MOTOR = 2
+    LEFT_MOTOR = 2
+    RIGHT_MOTOR = 3
 
     # Base Motor Powers
     BASE_LM_POWER = 880
@@ -34,8 +34,8 @@ if IS_MAIN_BOT:
     CURRENT_RM_POWER = 0
 
     # Motor Timings
-    RIGHT_TURN_TIME = 850  # Need to test turn timings periodically. They change as battery charge changes, or on new boards.
-    LEFT_TURN_TIME = 850
+    RIGHT_TURN_TIME = 900  # Need to test turn timings periodically. They change as battery charge changes, or on new boards.
+    LEFT_TURN_TIME = 900
     DEFAULT_DRIVE_TIME = 500
     DEFAULT_BACKWARDS_TIME = 500
     PIVOT_RIGHT_TURN_TIME = 3580  # Turns 180 degrees. Not currently used.
@@ -50,29 +50,39 @@ if IS_MAIN_BOT:
     SERVO_DELAY = 500  # Time needed to move a servo (need more testing to find a good value).
 
     # Arm Servo
-    ARM_SERVO = 0 
-    ARM_DOWN_POS = 1024  # Claw should be parallel to ground.
-    ARM_UP_POS = 1306
-    ARM_HIGH_POS = 1900
-    ARM_PUSH_CRATE_POS = 1250  # Moves aboe pvc so crates can be pushed.
-    ARM_SECOND_CRATE_GRAB_POS = 1500
-    ARM_SECOND_CRATE_UP_POS = 1700
-    ARM_SECOND_CRATE_DEPOSIT_POS = 1300
+    ARM_SERVO = 2
+    MAX_ARM_SERVO_POS = MAX_SERVO_POS
+    MIN_ARM_SERVO_POS = MIN_SERVO_POS
+    ARM_UP_POS = 1762
+    ARM_DOWN_POS = 1096
+
+    # Cube Arm Servo
+    CUBE_ARM_SERVO = 0
+    MAX_CUBE_ARM_SERVO_POS = MAX_SERVO_POS
+    MIN_CUBE_ARM_SERVO_POS = MIN_SERVO_POS
+    CUBE_ARM_UP_POS = 955
+    CUBE_ARM_DOWN_POS = 101
+    CUBE_ARM_LESS_UP_POS = 470
+    CUBE_ARM_HOLDING_POS = 1899
 
     # Claw Servo
-    CLAW_SERVO = 3
-    CLAW_LESS_OPEN_POS = 1269
-    CLAW_OPEN_POS = 1200  # 720
-    CLAW_LARGE_OPEN_POS = 1100  # 690
-    CLAW_BOTGUY_OPEN_POS = 1269  # 817
-    CLAW_PARALLEL_CLOSE_POS = 1530
-    CLAW_CLOSE_POS = 1652   # There should be a slight space between both prongs.
-    CLAW_SECOND_CRATE_GRAB_POS = 1575  # 1150
-    BOTGUY_CLAW_CLOSE_POS = 1630  # 1110
+    CLAW_SERVO = 1
+    MAX_CLAW_SERVO_POS = MAX_SERVO_POS
+    MIN_CLAW_SERVO_POS = MIN_SERVO_POS
+    CLAW_OPEN_POS = 417  # Claw fingers form a 180 degree line
+    CLAW_CLOSE_POS = 1298
+    CLAW_TRUCK_CLOSE_POS = 1418
+    CLAW_LESS_OPEN_POS = 928
+    CLAW_CHECKING_POS = CLAW_CLOSE_POS
+
+    # Micro Servo
+    MICRO_SERVO = 3
+
 
     # Starting Positions
-    STARTING_ARM_POS = ARM_HIGH_POS
-    STARTING_CLAW_POS = CLAW_OPEN_POS
+    STARTING_ARM_POS = ARM_DOWN_POS
+    STARTING_CLAW_POS = CLAW_LESS_OPEN_POS
+    STARTING_CUBE_ARM_POS = CUBE_ARM_HOLDING_POS
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Sensors~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -87,28 +97,41 @@ if IS_MAIN_BOT:
     RIGHT_TOPHAT_BW = 785  # If more, black. If less, white.
     THIRD_TOPHAT_BW = 2083  # If more, black. If less, white.
     LFOLLOW_REFRESH_RATE = 30  # Default amount of time before tophats check their black/white status again.
+    AVG_BIAS = 0
 
     # Digital Sensors
-    BUMP_SENSOR = 0
+    RIGHT_BUMP_SENSOR = 0
+
+    # Gryo Conversian Rates
+    WALLAGREES_TO_DEGREES_RATE = 90 / 50000.0
 
     # Camera Colors
     YELLOW = 0
     RED = 1
     GREEN = 2
 
-    # PID Lfollow
+    # Camera Zones
+    NEAR_ZONE = -1
+    FAR_ZONE = 1
+    FIRE_HOSPITAL = NEAR_ZONE
+    SAFE_HOSPITAL = FAR_ZONE
+
+    # PID Lfollow Values
     MAX_TOPHAT_VALUE_RIGHT = 3200
     MIN_TOPHAT_VALUE_RIGHT = 158
     MAX_TOPHAT_VALUE_LEFT = 3200
     MIN_TOPHAT_VALUE_LEFT = 158  # These values dont do anything unless calib command doesnt work right.
-    KP = 5.75
+    KP = 10 # 5.75
     KI = 0.161
     KD = 1
     KP_SAFE = 7
     KI_SAFE = 0.061
     KD_SAFE = 1
-    
 
+    # Miscellaneous Values
+    SAFETY_TIME = 15000  # This is the while loop time limit that ensures we don't have an infinite loop.
+    SAFETY_TIME_NO_STOP = SAFETY_TIME + 1
+    BASE_TIME = 9999
 else:  # Clone Bot ----------------------------------------------------------------------------------------------------------------
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Clone Motors~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -143,29 +166,31 @@ else:  # Clone Bot -------------------------------------------------------------
     SERVO_DELAY = 500  # Time needed to move a servo (need more testing to find a good value).
 
     # Clone Arm Servo
-    ARM_SERVO = 0 
-    ARM_DOWN_POS = 1118  # Claw should be parallel to ground.
-    ARM_UP_POS = 1400
-    ARM_HIGH_POS = 1900
-    ARM_PUSH_CRATE_POS = 1250  # Moves above pvc so crates can be pushed.
-    ARM_SECOND_CRATE_GRAB_POS = 1600
-    ARM_SECOND_CRATE_UP_POS = 1785
-    ARM_SECOND_CRATE_DEPOSIT_POS = 1350
+    ARM_SERVO = 0
+    MAX_ARM_SERVO_POS = MAX_SERVO_POS
+    MIN_ARM_SERVO_POS = MIN_SERVO_POS
+    ARM_UP_POS = 1306
+    ARM_DOWN_POS = 1024
+
+    # Clone Cube Arm Servo
+    CUBE_ARM_SERVO = 2
+    MAX_CUBE_ARM_SERVO_POS = MAX_SERVO_POS
+    MIN_CUBE_ARM_SERVO_POS = MIN_SERVO_POS
+    CUBE_ARM_UP_POS = 1750
+    CUBE_ARM_DOWN_POS = 1015
 
     # Clone Claw Servo
     CLAW_SERVO = 3
-    CLAW_LESS_OPEN_POS = 1245
-    CLAW_OPEN_POS = 1150
-    CLAW_LARGE_OPEN_POS = 1100
-    CLAW_BOTGUY_OPEN_POS = 1250
-    CLAW_PARALLEL_CLOSE_POS = 1500
-    CLAW_CLOSE_POS = 1652  # There should be a slight space between both prongs.
-    CLAW_SECOND_CRATE_GRAB_POS = 1570
-    BOTGUY_CLAW_CLOSE_POS = 1580
+    MAX_CLAW_SERVO_POS = MAX_SERVO_POS
+    MIN_CLAW_SERVO_POS = MIN_SERVO_POS
+    CLAW_OPEN_POS = 1200  # Claw fingers form a 180 degree line
+    CLAW_CLOSE_POS = 1652
+    CLAW_CHECKING_POS = CLAW_CLOSE_POS
 
     # Clone Starting Positions
-    STARTING_ARM_POS = ARM_HIGH_POS
-    STARTING_CLAW_POS = CLAW_OPEN_POS  # 1010
+    STARTING_ARM_POS = ARM_UP_POS
+    STARTING_CLAW_POS = CLAW_OPEN_POS
+    STARTING_CUBE_ARM_POS = CUBE_ARM_UP_POS
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Clone Sensors~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -180,17 +205,26 @@ else:  # Clone Bot -------------------------------------------------------------
     RIGHT_TOPHAT_BW = 1783  # If more, black. If less, white.
     THIRD_TOPHAT_BW = 2121 # If more, black. If less, white.
     LFOLLOW_REFRESH_RATE = 30  # Default amount of time before tophats check their black/white status again.
+    AVG_BIAS = 0
 
     # Clone Digital Sensors
-    BUMP_SENSOR = 0
+    RIGHT_BUMP_SENSOR = 0
+    
+    # Clone Gryo Conversian Rates
+    WALLAGREES_TO_DEGREES_RATE = 90 / 580000
 
     # Clone Camera Colors
     YELLOW = 0
     RED = 1
     GREEN = 2
     
-
-    # PID Lfollow
+    # Clone Camera Zones
+    NEAR_ZONE = -1
+    FAR_ZONE = 1
+    FIRE_HOSPITAL = NEAR_ZONE
+    SAFE_HOSPITAL = FAR_ZONE
+    
+    # Clone PID Lfollow Values
     MAX_TOPHAT_VALUE_RIGHT = 3200
     MIN_TOPHAT_VALUE_RIGHT = 158
     MAX_TOPHAT_VALUE_LEFT = 3200
@@ -201,4 +235,8 @@ else:  # Clone Bot -------------------------------------------------------------
     KP_SAFE = 7
     KI_SAFE = 0.061
     KD_SAFE = 1
-NO_VALUE = 99999  # This is a number that is never used by any command. 
+
+    # Clone Miscellaneous Values
+    SAFETY_TIME = 15000  # This is the time limit for all while loops that ensures we don't have an infinite loop.
+    SAFETY_TIME_NO_STOP = SAFETY_TIME + 1
+    BASE_TIME = 9999
