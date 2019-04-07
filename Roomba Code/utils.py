@@ -1,20 +1,21 @@
 from wallaby import *
 import constants as c
 import movement as m
+import gyro as g
 import sensors as s
 
 #---------------------------------------------States-------------------------------------------
 
-def left_pressed():
+def LeftPressed():
     return(left_button() == 1)
 
-def not_left_pressed():
+def NotLeftPressed():
     return(left_button() == 0)
 
-def right_pressed():
+def RightPressed():
     return(right_button() == 1)
 
-def not_right_pressed():
+def NotRightPressed():
     return(right_button() == 0)
 
 #---------------------------------------------Functions-------------------------------------------
@@ -22,12 +23,15 @@ def not_right_pressed():
 def setup():
     print "Starting setup()"
     create_disconnect()
+    print "Boi"
     msleep(10)
     create_connect()
+    print "2"
     msleep(20)
+    #g.calibrate_gyro()
     enable_servo(c.ARM_SERVO)
     print "Servo enabled = %d\n" % get_servo_enabled(c.ARM_SERVO)
-    set_servo_position(c.ARM_SERVO, c.ARM_START_POS)
+    m.move_arm(c.ARM_START_POS)
     print "Setup complete\n"    
 
 
@@ -40,9 +44,12 @@ def calibrate():
     min_sensor_value_lfcliff = 90000
     max_sensor_value_rfcliff = 0
     min_sensor_value_rfcliff = 90000
-    sec = seconds() + 9
+    if c.BASE_LM_POWER == 0:
+        print "c.BASE_LM_POWER can not equal 0 for the calibrate command. Autosetting to 109."
+        c.BASE_LM_POWER = 109
+    sec = seconds() + (4 * 109 / c.BASE_LM_POWER)
     print "Running calibrate()"
-    m.activate_motors(-1, int(c.BASE_LM_POWER / 2), int(c.BASE_RM_POWER / 2))
+    m.activate_motors(int(c.BASE_LM_POWER / 2), int(c.BASE_RM_POWER / 2))
     print str(int(c.BASE_LM_POWER / 2))
     print str(int(c.BASE_RM_POWER / 2))
     while seconds() < sec:
@@ -64,10 +71,10 @@ def calibrate():
             min_sensor_value_lfcliff = get_create_lfcliff_amt()
         msleep(1)
     m.deactivate_motors()
-    c.LCLIFF_BW = ((max_sensor_value_lcliff + min_sensor_value_lcliff) / 2) + 750
-    c.RCLIFF_BW = ((max_sensor_value_rcliff + min_sensor_value_rcliff) / 2) + 750
-    c.LFCLIFF_BW = ((max_sensor_value_lfcliff + min_sensor_value_lfcliff) / 2) + 770
-    c.RFCLIFF_BW = ((max_sensor_value_rfcliff + min_sensor_value_rfcliff) / 2) + 1000
+    c.LCLIFF_BW = ((max_sensor_value_lcliff + min_sensor_value_lcliff) / 2) + 500
+    c.RCLIFF_BW = ((max_sensor_value_rcliff + min_sensor_value_rcliff) / 2) + 500
+    c.LFCLIFF_BW = ((max_sensor_value_lfcliff + min_sensor_value_lfcliff) / 2) + 500
+    c.RFCLIFF_BW = ((max_sensor_value_rfcliff + min_sensor_value_rfcliff) / 2) + 500
     print "LCLIFF_BW: " + str(c.LCLIFF_BW)
     print "RCLIFF_BW: " + str(c.RCLIFF_BW)
     print "LFCLIFF_BW: " + str(c.LFCLIFF_BW)
@@ -75,18 +82,18 @@ def calibrate():
     print "max_sensor_value_rcliff: " + str(max_sensor_value_rcliff)
     print "min_sensor_value_rcliff: " + str(min_sensor_value_rcliff)
     msleep(500)
-    s.forwards_until_black_lfcliff()
-    s.align_close_fcliffs()
+    s.backwards_until_black_cliffs()
+    s.align_far_cliffs()
+    s.turn_left_until_lfcliff_senses_black()
     msleep(300)
-    s.forwards_until_black_lcliff()
-    s.align_close_cliffs()
+    g.calibrate_gyro_degrees()
     msleep(300)
-    s.forwards_until_bump()
-    m.backwards(100)
-    #m.activate_motors(1)
-    #msleep(4250)
-    #m.deactivate_motors()
-    msleep(1500)
+    m.turn_right(int(c.RIGHT_TURN_TIME / 2))            
+    s.backwards_until_black_lfcliff()
+    s.align_far_fcliffs()
+    msleep(300)
+    m.backwards(600)
+    msleep(300)
     ao()
     # DON'T DELETE THESE NEXT 4 LINES. They are purposeful. It avoids the roomba going into sleep mode after the calibration and not starting right.
     create_disconnect()
@@ -104,16 +111,16 @@ def calibrateBW_front_cliffs(time = 90):
     print "Running calibrateBW_front_cliffs()"
     print "You have %d seconds until calibration ends" % time
     print "Press L(eft) button to continue actual code using default bw_front values"
-    print "Press R(ight) button to set tophat bw_front values\n"
+    print "Press R(ight) button to set cliff bw_front values\n"
     print "Waiting for user input...\n"
     sec = seconds() + time
     while seconds() < sec:
-        if left_pressed():
+        if LeftPressed():
             print "Left button pressed. Continuing with code"
             print "Left front cliff bw = %d for actual code" % c.LFCLIFF_BW
             print "Right front cliff bw = %d for actual code\n" % c.RFCLIFF_BW
             break
-        elif right_pressed():
+        elif RightPressed():
             print "Right button pressed"
             print "Calculating bw_front values...\n\n"
             c.LFCLIFF_BW = get_create_lfcliff_amt()
@@ -133,16 +140,16 @@ def calibrateBW_side_cliffs(time = 90):
     print "Running calibrateBW_side_cliffs()"
     print "You have %d seconds until calibration ends" % time
     print "Press L(eft) button to continue actual code using default bw_side values"
-    print "Press R(ight) button to set tophat bw_side values\n"
+    print "Press R(ight) button to set cliff bw_side values\n"
     print "Waiting for user input...\n"
     sec = seconds() + time
     while seconds() < sec:
-        if left_pressed():
+        if LeftPressed():
             print "Left button pressed. Continuing with code"
             print "Left side cliff bw = %d for actual code" % c.LCLIFF_BW
             print "Right side cliff bw = %d for actual code\n" % c.RCLIFF_BW
             break
-        elif right_pressed():
+        elif RightPressed():
             print "Right button pressed"
             print "Calculating bw_side values...\n\n"
             c.LCLIFF_BW = get_create_lcliff_amt()
@@ -162,7 +169,7 @@ def calibrateBW_side_cliffs(time = 90):
 
 def shutdown(value = 255):
     print "Shutdown started"
-    create_stop()
+    m.deactivate_motors()
     msleep(25)
     ao()
     create_disconnect()
@@ -180,7 +187,7 @@ def sd():
 
 def test_movement():  # Used to see if movements and their defaults function as intended
     print "Testing movement\n"
-    m.drive()
+    m.forwards()
     msleep(500)  # Using msleep() instead of wait() to make sure each command turns off its wheels
     m.backwards()
     msleep(500)
@@ -205,23 +212,10 @@ def test_turns():
     m.turn_right()
     sd()
 
-def test_servos():  # Used to see if basic servo commands and constants function as intended
-    print "Testing servos\n"
-    #m.extend_elbow()
-    #m.wait()  # Using wait() instead of msleep() to make sure wheels are off
-    #m.flex_elbow()
-    #m.wait()
-    #m.shoulder_up()
-    #m.wait()
-    #m.shoulder_down()
-    #m.wait()
-    print "Testing complete. Exiting...\n"
-    exit(86)
-
 
 def runtest():
     create_connect()
-    create_drive_direct(100,100)
+    m.base_forwards()
     msleep(3000)
-    create_stop()
+    deactivate_motors()
     create_disconnect()
