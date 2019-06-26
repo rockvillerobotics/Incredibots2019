@@ -1,125 +1,144 @@
 ## The bulk of commands should go here
 
 from wallaby import *
+from decorators import *
 import constants as c
 import movement as m
 import sensors as s
 import utils as u
 import webcam as w
+import gyro as g
 
-def deliver_ambulance():
-    print "Starting deliver_ambulance()"
-    s.backwards_through_line_third()
-    m.lift_arm()
-    s.drive_until_black_third()
-    s.turn_right_until_black()
-    s.backwards_through_line_third(0)
-    s.backwards_until_black_right()
-    m.move_claw(c.CLAW_LESS_OPEN_POS)
-    m.lower_cube_arm()
-    m.open_claw()
-    s.drive_through_line_third(0)
-    s.drive_until_black_left()
-    m.backwards(100)
-    m.close_claw()
-    m.move_cube_arm(c.CUBE_ARM_HOLDING_POS)
-    m.move_claw(c.CLAW_LESS_OPEN_POS)
-    #m.move_cube_arm(c.CUBE_ARM_UP_POS)
-    m.turn_left(int(c.RIGHT_TURN_TIME/1.5))
-    s.backwards_through_line_left(0)
-    s.backwards_through_line_third()
-    s.turn_right_until_left_senses_black(0)
-    s.turn_right_until_left_senses_white()
-    s.lfollow_left_until_right_senses_black_pid_cheeky()
-    #s.lfollow_left_until_right_senses_black(1000)
-    #s.lfollow_left_until_right_senses_black_smooth()
-    s.turn_right_until_white(0)
-    s.turn_right_until_black()
-    m.lower_arm()
+
+@print_function_name
+def get_ambulance_and_blocks():
+    g.drive_gyro_through_line_right()
+    s.align_far()
+    g.drive_gyro_until_white_right(stop=False)
+    g.drive_gyro_until_black_right()
+    s.align_close()
+    g.drive_gyro_until_black_third(stop=False)
+    g.drive_gyro(100)
+    # Some cheeky maneuvers are done here to ensure that we get out of the starting box 100% of the time.
+    g.turn_left_gyro()
+    m.move_windshield_wiper(c.WINDSHIELD_WIPER_MIDDLE_POS)
+    g.drive_gyro_until_white_left(stop=False)
+    g.drive_gyro_through_line_left(stop=False)
+    g.drive_gyro_through_line_third()
+    s.turn_left_until_black()
+    s.lfollow_left_until_black_right_pid(stop=False)
+    g.drive_gyro_through_line_right()
+    # We're aligned on the T near the hospital zones. We're just about ready to sense the hospital zones.
+    s.align_far()
+    m.swipe_right_windshield_wiper()
     w.check_zones_hospital()
-    m.lift_arm()
+
+
+def deliver_ambulance_and_blocks():
     if c.SAFE_HOSPITAL == c.NEAR_ZONE:
-        s.backwards_through_line_third()
-        m.lower_arm()
-        m.backwards(500)
-        s.drive_until_black_third()
-        m.lift_arm()
-    else:  # Safe hospital is far zone
-        s.backwards_through_line_third()
-        s.turn_right_until_left_senses_black(0)
-        m.turn_right(c.RIGHT_TURN_TIME / 9)
-        s.backwards_until_white_third(0)
-        s.backwards_through_line_third(0)
-        m.backwards(100)
-        m.lower_arm()
-        # Ambulance delivered
-        s.drive_through_line_third()
-        m.lift_arm()
-        s.turn_right_until_left_senses_black(0)
-        s.turn_right_until_left_senses_white()
-    print "Finished delivering ambulance and yellow cube."
+        g.drive_gyro_through_line_third()
+
+    else:
+        s.left_forwards_until_white(stop=False)
+        s.left_forwards_until_black(stop=False)
+        s.left_forwards_until_white()
+        g.drive_gyro_until_black_third(stop=False)
+        g.drive_gyro(200)
 
 
-def get_prism():
-    print "Starting get_prism()"
+@print_function_name
+def get_firefighters():
     if c.SAFE_HOSPITAL == c.NEAR_ZONE:
-        s.turn_right_until_left_senses_white(0)
-        s.turn_right_until_left_senses_black(0)
-        s.turn_right_until_black(0)
-        s.turn_right_until_left_senses_white(0)
-        s.turn_right_until_left_senses_black(0)
-        s.turn_right_until_left_senses_white()
-        s.lfollow_left_until_right_senses_black_smooth(0)
-        s.drive_through_line_right()
-        s.align_far()
-        m.move_claw(c.CLAW_LESS_OPEN_POS)
-        m.lower_cube_arm()
-        m.open_claw()
-        s.drive_until_white_right(0)
-        s.drive_until_black_right(5000)
-        m.move_claw(c.CLAW_TRUCK_CLOSE_POS)
-        m.lift_cube_arm()
-    else:  # Safe hospital is far zone
-        s.lfollow_left_until_right_senses_black_smooth()
-        m.move_claw(c.CLAW_LESS_OPEN_POS)
-        m.lower_cube_arm()
-        m.open_claw()
-        s.drive_through_line_right(0)
-        s.drive_until_black_right(7000)
-        m.move_claw(c.CLAW_TRUCK_CLOSE_POS)
-        m.lift_cube_arm()
-    print "Finished getting yellow prism."
+        g.backwards_gyro_through_line_right()
+        m.swipe_left_windshield_wiper()
+        s.right_forwards_until_black(stop=False)
+        s.right_forwards_until_white()
+        go_to_firefighters()
+        wipe_firefighters()
 
 
-def deliver_prism_and_cube():
-    print "Starting deliver_prism_and_cube()"
-    if c.SAFE_HOSPITAL == c.NEAR_ZONE:
-        s.turn_left_until_right_senses_white(0)
-        s.turn_left_until_right_senses_black(0)
-        s.turn_left_until_right_senses_white(0)
-        s.lfollow_right_until_left_senses_black_smooth(5000) 
-        s.drive_through_line_left(5000)
-        m.turn_left(100)
-        m.lower_cube_arm()
-        m.move_claw(c.CLAW_LESS_OPEN_POS)
-        # Fire Truck delivered.
-        m.move_cube_arm(c.CUBE_ARM_HOLDING_POS)
-        m.close_claw()
-        m.move_cube_arm(c.CUBE_ARM_LESS_UP_POS)
-        m.move_claw(c.CLAW_LESS_OPEN_POS)
-    else:  # Safe hospital is far zone
-        s.align_close()
-        s.turn_left_until_right_senses_black(0)
-        s.turn_left_until_right_senses_white(0)
-        s.turn_left_until_right_senses_black(0)
-        s.turn_left_until_right_senses_white(0)
-        m.turn_left(50)
-        m.lower_cube_arm()
-        m.move_claw(c.CLAW_LESS_OPEN_POS)
-        # Fire Truck is delivered.
-        m.move_cube_arm(c.CUBE_ARM_HOLDING_POS)
-        m.close_claw()
-        m.move_cube_arm(c.CUBE_ARM_LESS_UP_POS)
-        m.move_claw(c.CLAW_LESS_OPEN_POS)
-    print "Finished delivering yellow prism and yellow cube."
-    
+    else:
+        g.backwards_gyro_through_line_left(stop=False)
+        g.backwards_gyro_until_black_left(stop=False)
+        g.backwards_gyro(50)
+        m.swipe_left_windshield_wiper()
+        s.turn_left_until_white(stop=False)
+        s.turn_left_until_black(stop=False)
+        s.turn_left_until_black_right(stop=False)
+        s.turn_left_until_white_right()
+        go_to_firefighters()
+        wipe_firefighters()
+
+
+@print_function_name
+def go_to_firefighters():
+    g.drive_gyro_until_black_fourth(stop=False)
+    g.drive_gyro_until_white_fourth(stop=False)
+    g.drive_gyro_until_black_right_or_fourth()
+    if s.isFourthOnBlack():
+        print "\n\nOnly Fourth is on black.\n\n"
+        g.drive_gyro(100)
+        s.turn_right_until_black_left()
+        g.drive_gyro_until_black_third()
+
+    elif s.isLeftOnBlack():
+        print "\n\nLeft sensor is on black. Clearly its angled the the left a bit.\n\n"
+        g.drive_gyro_through_line_right()
+        s.turn_left_until_black(stop=False)
+        s.turn_left_until_white()
+        g.drive_gyro_until_black_third()
+        s.turn_right_until_white(stop=False)
+
+    else:
+        print "\n\nRight sensor is on black but Left sensor is not.\n\n"
+        g.drive_gyro_through_line_fourth()
+        s.turn_right_until_black_left()
+        g.drive_gyro_until_black_third()
+        s.turn_right_until_white(stop=False)
+    s.turn_right_until_black(stop=False)
+    s.turn_right_until_white()
+    s.lfollow_right_inside_line_until_black_third_pid()
+
+
+@print_function_name
+def deliver_firefighters():
+    g.backwards_gyro_through_line_left()
+    s.align_close()
+    g.turn_right_gyro(85)
+    g.drive_gyro_until_white_left(stop=False)
+    g.drive_gyro_until_black_left()
+    s.turn_right_until_left_senses_white()
+    s.lfollow_left_until_third_senses_black_pid(stop=False)
+    s.lfollow_left_until_third_senses_white_pid()
+    # Now the robot is in front of the near zone hospital. The firefighters need to go to the burning hospital.
+    if c.BURNING_HOSPITAL == c.NEAR_ZONE:
+        g.turn_left_gyro()
+        g.drive_gyro_through_line_third()
+
+
+    else:
+        s.right_forwards_until_black()
+        g.drive_gyro_until_black_third(stop=False)
+        g.drive_gyro(50)
+        g.backwards_gyro_until_black_left()
+        s.turn_left_until_black(0)
+        s.turn_left_until_white()
+        
+
+
+@print_function_name
+def wipe_firefighters():
+    swipes = 0
+    left_pos = c.WINDSHIELD_WIPER_LEFT_POS
+    right_pos = c.WINDSHIELD_WIPER_RIGHT_POS
+    while swipes < 7:
+        # Swipes left on even rotations and swipes right on odd.
+        if swipes % 2 == 0:
+            m.swipe_left_windshield_wiper(3, 1, left_pos)
+            s.turn_left_until_black_right()
+            left_pos += 50
+        else:
+            m.swipe_right_windshield_wiper(3, 1, right_pos)
+            s.turn_right_until_black_left()
+            right_pos -= 50
+        swipes += 1
