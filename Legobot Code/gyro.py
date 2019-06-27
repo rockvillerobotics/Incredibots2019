@@ -109,7 +109,7 @@ def print_robot_angle():
 # reduce the error proportionally to how big the error is.
 
 @print_function_name_with_arrows
-def drive_gyro(time, should_should_stop=True):
+def drive_gyro(time, should_stop=True):
     angle = 0
     error = 0
     if time == 0:
@@ -128,7 +128,7 @@ def drive_gyro(time, should_should_stop=True):
 
 
 @print_function_name_with_arrows
-def backwards_gyro(time, should_should_stop=True):
+def backwards_gyro(time, should_stop=True):
     angle = 0
     error = 0
     if time == 0:
@@ -149,7 +149,7 @@ def backwards_gyro(time, should_should_stop=True):
 #-----------------------Gyro-Based Turning Commands-------------------------------------
 # The robot turns until the gyro sensor senses the desired angle.
 
-def turn_gyro(degrees, should_should_stop=True):
+def turn_gyro(degrees, should_stop=True):
     angle = 0
     target_angle = degrees * c.DEGREE_CONVERSION_RATE
     if target_angle > 0:
@@ -168,12 +168,12 @@ def turn_gyro(degrees, should_should_stop=True):
         m.deactivate_motors()
 
 
-def turn_left_gyro(degrees=90, should_should_stop=True):
+def turn_left_gyro(degrees=90, should_stop=True):
     print "Starting turn_left_gyro() for " + str(degrees) + " degrees"
     turn_gyro(degrees, should_stop)
 
 
-def turn_right_gyro(degrees=90, should_should_stop=True):
+def turn_right_gyro(degrees=90, should_stop=True):
     print "Starting turn_right_gyro() for " + str(degrees) + " degrees"
     turn_gyro(-degrees, should_stop)
 
@@ -183,7 +183,7 @@ def turn_right_gyro(degrees=90, should_should_stop=True):
 # bot doesn't veer on its way to a line.
 
 @print_function_name_with_arrows
-def drive_gyro_until_black_left(time=c.SAFETY_TIME, should_should_stop=True):
+def drive_gyro_until_black_left(time=c.SAFETY_TIME, should_stop=True):
     angle = 0
     error = 0
     if time == 0:
@@ -202,7 +202,7 @@ def drive_gyro_until_black_left(time=c.SAFETY_TIME, should_should_stop=True):
 
 
 @print_function_name_with_arrows
-def drive_gyro_until_white_left(time=c.SAFETY_TIME, should_should_stop=True):
+def drive_gyro_until_white_left(time=c.SAFETY_TIME, should_stop=True):
     angle = 0
     error = 0
     if time == 0:
@@ -221,7 +221,7 @@ def drive_gyro_until_white_left(time=c.SAFETY_TIME, should_should_stop=True):
 
 
 @print_function_name_with_arrows
-def drive_gyro_until_black_right(time=c.SAFETY_TIME, should_should_stop=True):
+def drive_gyro_until_black_right(time=c.SAFETY_TIME, should_stop=True):
     angle = 0
     error = 0
     if time == 0:
@@ -240,7 +240,7 @@ def drive_gyro_until_black_right(time=c.SAFETY_TIME, should_should_stop=True):
 
 
 @print_function_name_with_arrows
-def drive_gyro_until_white_right(time=c.SAFETY_TIME, should_should_stop=True):
+def drive_gyro_until_white_right(time=c.SAFETY_TIME, should_stop=True):
     angle = 0
     error = 0
     if time == 0:
@@ -259,7 +259,7 @@ def drive_gyro_until_white_right(time=c.SAFETY_TIME, should_should_stop=True):
 
 
 @print_function_name_with_arrows
-def drive_gyro_until_black_third(time=c.SAFETY_TIME, should_should_stop=True):
+def drive_gyro_until_black_third(time=c.SAFETY_TIME, should_stop=True):
     angle = 0
     error = 0
     if time == 0:
@@ -278,7 +278,7 @@ def drive_gyro_until_black_third(time=c.SAFETY_TIME, should_should_stop=True):
 
 
 @print_function_name_with_arrows
-def drive_gyro_until_white_third(time=c.SAFETY_TIME, should_should_stop=True):
+def drive_gyro_until_white_third(time=c.SAFETY_TIME, should_stop=True):
     angle = 0
     error = 0
     if time == 0:
@@ -297,7 +297,7 @@ def drive_gyro_until_white_third(time=c.SAFETY_TIME, should_should_stop=True):
 
 
 @print_function_name_with_arrows
-def drive_gyro_until_black_fourth(time=c.SAFETY_TIME, should_should_stop=True):
+def drive_gyro_until_black_fourth(time=c.SAFETY_TIME, should_stop=True):
     angle = 0
     error = 0
     if time == 0:
@@ -316,7 +316,7 @@ def drive_gyro_until_black_fourth(time=c.SAFETY_TIME, should_should_stop=True):
 
 
 @print_function_name_with_arrows
-def drive_gyro_until_white_fourth(time=c.SAFETY_TIME, should_should_stop=True):
+def drive_gyro_until_white_fourth(time=c.SAFETY_TIME, should_stop=True):
     angle = 0
     error = 0
     if time == 0:
@@ -335,7 +335,7 @@ def drive_gyro_until_white_fourth(time=c.SAFETY_TIME, should_should_stop=True):
 
 
 @print_function_name_with_arrows
-def drive_gyro_until_black_right_or_fourth(time=c.SAFETY_TIME, should_should_stop=True):
+def drive_gyro_until_black_right_or_fourth(time=c.SAFETY_TIME, should_stop=True):
     angle = 0
     error = 0
     if time == 0:
@@ -354,7 +354,7 @@ def drive_gyro_until_black_right_or_fourth(time=c.SAFETY_TIME, should_should_sto
 
 
 @print_function_name_with_arrows
-def backwards_gyro_until_black_left(time=c.SAFETY_TIME, should_should_stop=True):
+def backwards_gyro_until_black_left(time=c.SAFETY_TIME, should_stop=True):
     angle = 0
     error = 0
     if time == 0:
