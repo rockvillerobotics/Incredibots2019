@@ -14,9 +14,6 @@ def main():
     print "Starting main()\n"
     u.setup()
     u.calibrate()
-    m.drive(should_stop=False)
-    s.wait_until(s.isRightOnBlack)
-    u.shutdown(0)
     u.calibrate()
     a.get_ambulance_and_blocks()
     a.deliver_ambulance_and_blocks()

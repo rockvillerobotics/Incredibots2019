@@ -53,8 +53,17 @@ if IS_MAIN_BOT:
     #-------------------------------Servos------------------------
 
     # Servo Limits
-    MAX_SERVO_POS = 1900  # Cannot physically exceed 2047 or servo will break. Metal servos are more affected.
-    MIN_SERVO_POS = 100  # Cannot physically exceed 0 or servo will break. Metal servos are more affected.
+    MAX_SERVO_POS = 2047  # Cannot physically exceed 2047 or servo will break. Metal servos are more affected.
+    MIN_SERVO_POS = 0  # Cannot physically exceed 0 or servo will break. Metal servos are more affected.
+
+    ARM_MAX_POS = 1900
+    ARM_MIN_POS = 100
+
+    CLAW_MAX_POS = 1900
+    CLAW_MIN_POS = 100
+
+    WINDSHIELD_WIPER_MAX_POS = 1900
+    WINDSHIELD_WIPER_MIN_POS = 100
     SERVO_DELAY = 500  # Time needed to move a servo (need more testing to find a good value).
 
     # Arm Servo
