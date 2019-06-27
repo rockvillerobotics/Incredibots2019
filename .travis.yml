@@ -15,10 +15,10 @@ install:
 
 before_script:
   # Copy wallaby.py into the robot directories
-  - cp $WALLABY_PY $LEGOBOT_DIR/
-  - cp $WALLABY_PY $ROOMBA_DIR/
+  - cp "$WALLABY_PY" "$LEGOBOT_DIR/"
+  - cp "$WALLABY_PY" "$ROOMBA_DIR/"
 
 script:
   # Lint the Python files; wallaby.py is ignored due to a pylint directive in the file
-  - echo -e "${YELLOW}Analyzing Legobot code...${NC}" && pylint --errors-only $LEGOBOT_DIR/*.py
-  - echo -e "${YELLOW}Analyzing Roomba code...${NC}" && pylint --errors-only $ROOMBA_DIR/*.py
+  - echo -e "${YELLOW}Analyzing Legobot code...${NC}" && pylint --errors-only "$LEGOBOT_DIR"/*.py
+  - echo -e "${YELLOW}Analyzing Roomba code...${NC}" && pylint --errors-only "$ROOMBA_DIR"/*.py
