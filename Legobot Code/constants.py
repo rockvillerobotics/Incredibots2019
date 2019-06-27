@@ -88,6 +88,8 @@ if IS_MAIN_BOT:
     STARTING_CLAW_POS = CLAW_LESS_OPEN_POS
     STARTING_WINDSHIELD_WIPER_POS = WINDSHIELD_WIPER_RIGHT_POS
 
+    LIST_OF_ALL_SERVOS = [ARM_SERVO, CLAW_SERVO, WINDSHIELD_WIPER_SERVO, MICRO_SERVO]
+
     #-------------------------------Sensors------------------------
 
     # Analog Ports
