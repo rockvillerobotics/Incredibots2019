@@ -3,8 +3,8 @@ os: linux
 dist: xenial # Use Ubuntu 16.04 as our Travis CI environment
 language: python
 python: "2.7"
-env: LEGOBOT_DIR="$TRAVIS_BUILD_DIR/Legobot\ Code" \
-     ROOMBA_DIR="$TRAVIS_BUILD_DIR/Roomba\ Code" \
+env: LEGOBOT_DIR="$TRAVIS_BUILD_DIR/Legobot Code" \
+     ROOMBA_DIR="$TRAVIS_BUILD_DIR/Roomba Code" \
      WALLABY_PY="$TRAVIS_BUILD_DIR/.travis/wallaby.py" \
      YELLOW="\033[1;33m" \
      NC="\033[0m" # No Color
