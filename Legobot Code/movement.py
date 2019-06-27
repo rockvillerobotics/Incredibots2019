@@ -28,10 +28,9 @@ def base_backwards(speed_multiplier=1.0):
 # There is a lot of mumbo jumbo here to keep consistency with the rest of the code, but if you can understand this
 # you can understand every other command here.
 
-def drive(time=c.DEFAULT_DRIVE_TIME, stop=True, speed_multiplier=1.0):
+def drive(time=c.DEFAULT_DRIVE_TIME, should_should_stop=True, speed_multiplier=1.0):
     if time == 0:
-        stop = False
-        time = c.SAFETY_TIME
+        should_should_stop = False
         time = c.SAFETY_TIME
     base_drive(speed_multiplier)
     print "Drive forwards for %d ms" % time
@@ -40,10 +39,9 @@ def drive(time=c.DEFAULT_DRIVE_TIME, stop=True, speed_multiplier=1.0):
         deactivate_motors()
 
 
-def turn_left(time=c.LEFT_TURN_TIME, stop=True, speed_multiplier=1.0):
+def turn_left(time=c.LEFT_TURN_TIME, should_should_stop=True, speed_multiplier=1.0):
     if time == 0:
-        stop = False
-        time = c.SAFETY_TIME
+        should_should_stop = False
         time = c.SAFETY_TIME
     base_turn_left(speed_multiplier)
     print "Turn left for %d ms" % time
@@ -52,10 +50,9 @@ def turn_left(time=c.LEFT_TURN_TIME, stop=True, speed_multiplier=1.0):
         deactivate_motors()
 
 
-def turn_right(time=c.RIGHT_TURN_TIME, stop=True, speed_multiplier=1.0):
+def turn_right(time=c.RIGHT_TURN_TIME, should_should_stop=True, speed_multiplier=1.0):
     if time == 0:
-        stop = False
-        time = c.SAFETY_TIME
+        should_should_stop = False
         time = c.SAFETY_TIME
     base_turn_right(speed_multiplier)
     print "Turn right for %d ms" % time
@@ -64,10 +61,9 @@ def turn_right(time=c.RIGHT_TURN_TIME, stop=True, speed_multiplier=1.0):
         deactivate_motors()
 
 
-def backwards(time=c.DEFAULT_BACKWARDS_TIME, stop=True, speed_multiplier=1.0):
+def backwards(time=c.DEFAULT_BACKWARDS_TIME, should_should_stop=True, speed_multiplier=1.0):
     if time == 0:
-        stop = False
-        time = c.SAFETY_TIME
+        should_should_stop = False
         time = c.SAFETY_TIME
     base_backwards(speed_multiplier)
     print "Drive backwards for %d ms"%time
@@ -85,10 +81,9 @@ def stop_for(time=1000):  # Same as msleep command, but stops the wheels.
 # At one time, these were very useful commands. But, as time has gone on and techniques have been improved, they
 # have become obsolete. We keep them as an archaic reference to what things use to be. We're nostalgic like that.
 
-def drive_no_print(time=c.DEFAULT_DRIVE_TIME, stop=True, speed_multiplier=1.0):
+def drive_no_print(time=c.DEFAULT_DRIVE_TIME, should_should_stop=True, speed_multiplier=1.0):
     if time == 0:
-        stop = False
-        time = c.SAFETY_TIME
+        should_should_stop = False
         time = c.SAFETY_TIME
     base_drive(speed_multiplier)
     msleep(time)
@@ -96,10 +91,9 @@ def drive_no_print(time=c.DEFAULT_DRIVE_TIME, stop=True, speed_multiplier=1.0):
         deactivate_motors()
 
 
-def turn_left_no_print(time=c.LEFT_TURN_TIME, stop=True, speed_multiplier=1.0):
+def turn_left_no_print(time=c.LEFT_TURN_TIME, should_should_stop=True, speed_multiplier=1.0):
     if time == 0:
-        stop = False
-        time = c.SAFETY_TIME
+        should_should_stop = False
         time = c.SAFETY_TIME
     base_turn_left(speed_multiplier)
     msleep(time)
@@ -107,10 +101,9 @@ def turn_left_no_print(time=c.LEFT_TURN_TIME, stop=True, speed_multiplier=1.0):
         deactivate_motors()
 
 
-def turn_right_no_print(time=c.RIGHT_TURN_TIME, stop=True, speed_multiplier=1.0):
+def turn_right_no_print(time=c.RIGHT_TURN_TIME, should_should_stop=True, speed_multiplier=1.0):
     if time == 0:
-        stop = False
-        time = c.SAFETY_TIME
+        should_should_stop = False
         time = c.SAFETY_TIME
     base_turn_right(speed_multiplier)
     msleep(time)
@@ -118,10 +111,9 @@ def turn_right_no_print(time=c.RIGHT_TURN_TIME, stop=True, speed_multiplier=1.0)
         deactivate_motors()
 
 
-def backwards_no_print(time=c.DEFAULT_BACKWARDS_TIME, stop=True, speed_multiplier=1.0):
+def backwards_no_print(time=c.DEFAULT_BACKWARDS_TIME, should_should_stop=True, speed_multiplier=1.0):
     if time == 0:
-        stop = False
-        time = c.SAFETY_TIME
+        should_stop = False
         time = c.SAFETY_TIME
     base_backwards(speed_multiplier)
     msleep(time)
@@ -221,7 +213,7 @@ def av(motor_port, desired_velocity):
 # "tic" is, but it's the universal wallaby unit of distance. Normally there are about 200 tics to an inch.
 
 @print_function_name_with_arrows
-def drive_tics(tics, stop=True):
+def drive_tics(tics, should_should_stop=True):
     print "Starting drive_tics"
     cmpc(c.LEFT_MOTOR)
     cmpc(c.RIGHT_MOTOR)
@@ -234,7 +226,7 @@ def drive_tics(tics, stop=True):
 
 
 @print_function_name_with_arrows
-def backwards_tics(tics, stop=True):
+def backwards_tics(tics, should_should_stop=True):
     print "Starting backwards_tics"
     cmpc(c.LEFT_MOTOR)
     cmpc(c.RIGHT_MOTOR)
@@ -394,10 +386,9 @@ def base_bumpfollow_right():
 
 
 @print_function_name_with_arrows
-def bumpfollow_right_until_black_left(time=c.SAFETY_TIME, stop=True):
+def bumpfollow_right_until_black_left(time=c.SAFETY_TIME, should_should_stop=True):
     if time == 0:
-        stop = False
-        time = c.SAFETY_TIME
+        should_stop = False
         time = c.SAFETY_TIME
     sec = seconds() + time / 1000.0
     while seconds() < sec and s.isLeftOnWhite():
@@ -407,10 +398,9 @@ def bumpfollow_right_until_black_left(time=c.SAFETY_TIME, stop=True):
 
 
 @print_function_name_with_arrows
-def bumpfollow_right_until_white_left(time=c.SAFETY_TIME, stop=True):
+def bumpfollow_right_until_white_left(time=c.SAFETY_TIME, should_should_stop=True):
     if time == 0:
-        stop = False
-        time = c.SAFETY_TIME
+        should_stop = False
         time = c.SAFETY_TIME
     sec = seconds() + time / 1000.0
     while seconds() < sec and s.isLeftOnBlack():
@@ -420,10 +410,9 @@ def bumpfollow_right_until_white_left(time=c.SAFETY_TIME, stop=True):
 
 
 @print_function_name_with_arrows
-def bumpfollow_right_until_black_right(time=c.SAFETY_TIME, stop=True):
+def bumpfollow_right_until_black_right(time=c.SAFETY_TIME, should_should_stop=True):
     if time == 0:
-        stop = False
-        time = c.SAFETY_TIME
+        should_stop = False
         time = c.SAFETY_TIME
     sec = seconds() + time / 1000.0
     while seconds() < sec and s.isRightOnWhite():
@@ -433,10 +422,9 @@ def bumpfollow_right_until_black_right(time=c.SAFETY_TIME, stop=True):
 
 
 @print_function_name_with_arrows
-def bumpfollow_right_until_white_right(time=c.SAFETY_TIME, stop=True):
+def bumpfollow_right_until_white_right(time=c.SAFETY_TIME, should_should_stop=True):
     if time == 0:
-        stop = False
-        time = c.SAFETY_TIME
+        should_stop = False
         time = c.SAFETY_TIME
     sec = seconds() + time / 1000.0
     while seconds() < sec and s.isRightOnBlack():
