@@ -182,7 +182,7 @@ def av(motor_port, desired_velocity):
         desired_velocity = -1
     if motor_port == c.LEFT_MOTOR:
         intermediate_velocity = c.CURRENT_LM_POWER
-        if abs(desired_velocity - c.CURRENT_LM_POWER) > 600 or c.CURRENT_LM_POWER == 0:
+        if abs(desired_velocity - c.CURRENT_LM_POWER) > 600 or c.CURRENT_LM_POWER == 0:  # The robot only revs if it needs to.
             rev = True
     elif motor_port == c.RIGHT_MOTOR:
         intermediate_velocity = c.CURRENT_RM_POWER
@@ -214,7 +214,6 @@ def av(motor_port, desired_velocity):
 
 @print_function_name_with_arrows
 def drive_tics(tics, should_stop=True):
-    print "Starting drive_tics"
     cmpc(c.LEFT_MOTOR)
     cmpc(c.RIGHT_MOTOR)
     activate_motors(c.BASE_LM_POWER, c.BASE_RM_POWER)
@@ -227,7 +226,6 @@ def drive_tics(tics, should_stop=True):
 
 @print_function_name_with_arrows
 def backwards_tics(tics, should_stop=True):
-    print "Starting backwards_tics"
     cmpc(c.LEFT_MOTOR)
     cmpc(c.RIGHT_MOTOR)
     activate_motors(-1 * c.BASE_LM_POWER, -1 * c.BASE_RM_POWER)
@@ -242,96 +240,76 @@ def backwards_tics(tics, should_stop=True):
 # All these commands move the servo to a specified location at a specified speed.
 # The more tics per second, the faster the servo moves.
 
-def open_claw(tics=3, ms=1, servo_position=c.CLAW_OPEN_POS):
+def open_claw(tics=4, ms=1, servo_position=c.CLAW_OPEN_POS):
     print "Open claw to desired position: %d" % servo_position
-    if servo_position > c.MAX_SERVO_POS:
-        print "Invalid desired servo position\n"
-        exit(86)
-    if servo_position < c.MIN_SERVO_POS:
-        print "Invalid desired servo position\n"
-        exit(86)
-    move_servo(c.CLAW_SERVO, servo_position, tics, ms)  # Checking for faulty values must go before setting position.
+    move_claw(servo_position, tics, ms)  # Checking for faulty values must go before setting position.
     print "Claw opened to position: %d" % get_servo_position(c.CLAW_SERVO)
 
 
-def close_claw(tics=3, ms=1, servo_position=c.CLAW_CLOSE_POS):
+def close_claw(tics=4, ms=1, servo_position=c.CLAW_CLOSE_POS):
     print "Close claw to desired position: %d" % servo_position
-    if servo_position > c.MAX_SERVO_POS:
-        print "Invalid desired servo position\n"
-        exit(86)
-    if servo_position < c.MIN_SERVO_POS:
-        print "Invalid desired servo position\n"
-        exit(86)
-    move_servo(c.CLAW_SERVO, servo_position, tics, ms)
+    move_claw(servo_position, tics, ms)
     print "Claw closed to position: %d" % get_servo_position(c.CLAW_SERVO)
 
 
-def lift_arm(tics=3, ms=1, servo_position=c.ARM_UP_POS):
+def lift_arm(tics=4, ms=1, servo_position=c.ARM_UP_POS):
     print "Set arm servo to desired up position: %d" % servo_position
-    if servo_position > c.MAX_SERVO_POS:
-        print "Invalid desired servo position\n"
-        exit(86)
-    if servo_position < c.MIN_SERVO_POS:
-        print "Invalid desired servo position\n"
-        exit(86)
-    move_servo(c.ARM_SERVO, servo_position, tics, ms)
+    move_arm(servo_position, tics, ms)
     print "Arm reached up position: %d" % get_servo_position(c.ARM_SERVO)
 
 
-def lower_arm(tics=3, ms=1, servo_position=c.BASE_TIME):
+def lower_arm(tics=4, ms=1, servo_position=c.ARM_LOW_POS):
     print "Set arm servo to desired down position: %d" % servo_position
-    if servo_position == c.BASE_TIME:
-        servo_position = c.ARM_DOWN_POS
-    if servo_position > c.MAX_SERVO_POS:
-        print "Invalid desired servo position\n"
-        exit(86)
-    if servo_position < c.MIN_SERVO_POS:
-        print "Invalid desired servo position\n"
-        exit(86)
-    move_servo(c.ARM_SERVO, servo_position, tics, ms)
+    move_arm(servo_position, tics, ms)
     print "Arm reached down position: %d" % get_servo_position(c.ARM_SERVO)
 
 
-def swipe_left_windshield_wiper(tics=3, ms=1, servo_position=c.WINDSHIELD_WIPER_LEFT_POS):
+def swipe_left_windshield_wiper(tics=4, ms=1, servo_position=c.WINDSHIELD_WIPER_LEFT_POS):
     print "Set window wiper servo to desired up position: %d" % servo_position
-    if servo_position > c.MAX_SERVO_POS:
-        print "Invalid desired servo position\n"
-        exit(86)
-    if servo_position < c.MIN_SERVO_POS:
-        print "Invalid desired servo position\n"
-        exit(86)
-    move_servo(c.WINDSHIELD_WIPER_SERVO, servo_position, tics, ms)
+    move_windshield_wiper(servo_position, tics, ms)
     print "Wiper reached left position: %d" % get_servo_position(c.WINDSHIELD_WIPER_SERVO)
 
 
-def swipe_right_windshield_wiper(tics=3, ms=1, servo_position=c.WINDSHIELD_WIPER_RIGHT_POS):
+def swipe_right_windshield_wiper(tics=4, ms=1, servo_position=c.WINDSHIELD_WIPER_RIGHT_POS):
     print "Set window wiper servo to desired down position: %d" % servo_position
-    if servo_position > c.MAX_SERVO_POS:
-        print "Invalid desired servo position\n"
-        exit(86)
-    if servo_position < c.MIN_SERVO_POS:
-        print "Invalid desired servo position\n"
-        exit(86)
-    move_servo(c.WINDSHIELD_WIPER_SERVO, servo_position, tics, ms)
+    move_windshield_wiper(servo_position, tics, ms)
     print "Wiper reached right position: %d" % get_servo_position(c.WINDSHIELD_WIPER_SERVO)
 
 
-def move_claw(desired_claw_position=c.CLAW_OPEN_POS, claw_tics=3, claw_ms=1):
+def move_claw(desired_claw_position=c.CLAW_OPEN_POS, claw_tics=4, claw_ms=1):
     print "Moving Claw to " + str(desired_claw_position)
+    if desired_claw_position > c.CLAW_MAX_POS:
+        print "Desired servo position is too high! Autosetting to c.CLAW_MAX_POS"
+        desired_claw_position = c.CLAW_MAX_POS
+    if desired_claw_position < c.CLAW_MIN_POS:
+        print "Desired servo position is too high! Autosetting to c.CLAW_MIN_POS"
+        desired_claw_position = c.c.CLAW_MIN_POS
     move_servo(c.CLAW_SERVO, desired_claw_position, claw_tics, claw_ms)
 
 
-def move_arm(desired_arm_position = c.ARM_UP_POS, arm_tics=3, arm_ms=1):
+def move_arm(desired_arm_position = c.ARM_UP_POS, arm_tics=4, arm_ms=1):
     print "Moving Arm to " + str(desired_arm_position)
+    if desired_arm_position > c.ARM_MAX_POS:
+        print "Desired servo position is too high! Autosetting to c.ARM_MAX_POS"
+        desired_arm_position = c.ARM_MAX_POS
+    if desired_arm_position < c.ARM_MIN_POS:
+        print "Desired servo position is too high! Autosetting to c.ARM_MIN_POS"
+        desired_arm_position = c.c.ARM_MIN_POS
     move_servo(c.ARM_SERVO, desired_arm_position, arm_tics, arm_ms)
 
 
-def move_windshield_wiper(desired_windshield_wiper_position, windshield_wiper_tics=3, windshield_wiper_ms=1):
-    print "Moving Cube Arm to " + str(desired_windshield_wiper_position)
+def move_windshield_wiper(desired_windshield_wiper_position, windshield_wiper_tics=4, windshield_wiper_ms=1):
+    print "Moving Windshield Wiper to " + str(desired_windshield_wiper_position)
+    if desired_windshield_wiper_position > c.WINDSHIELD_WIPER_MAX_POS:
+        print "Desired servo position is too high! Autosetting to c.WINDSHIELD_WIPER_MAX_POS"
+        desired_windshield_wiper_position = c.WINDSHIELD_WIPER_MAX_POS
+    if desired_windshield_wiper_position < c.WINDSHIELD_WIPER_MIN_POS:
+        print "Desired servo position is too high! Autosetting to c.WINDSHIELD_WIPER_MIN_POS"
+        desired_windshield_wiper_position = c.c.WINDSHIELD_WIPER_MIN_POS
     move_servo(c.WINDSHIELD_WIPER_SERVO, desired_windshield_wiper_position, windshield_wiper_tics, windshield_wiper_ms)
 
 
-def move_servo(servo_port, desired_servo_position, tics=3, ms=1):
+def move_servo(servo_port, desired_servo_position, tics=4, ms=1):
 # Moves a servo to a given position from its current position. The servo and desired position must be specified.
 # Servo move speed = tics / ms
 # >18 tics is too high
@@ -351,20 +329,21 @@ def move_servo(servo_port, desired_servo_position, tics=3, ms=1):
         exit(86)
     while abs(get_servo_position(servo_port) - desired_servo_position) > 10:
         # Tolerance of +/- 10 included to account for servo value skipping
-        if (get_servo_position(servo_port) - desired_servo_position) >= 1:
+        if (get_servo_position(servo_port) - desired_servo_position) >= 0:
             set_servo_position(servo_port, intermediate_position)
             intermediate_position -= tics
-        elif (get_servo_position(servo_port) - desired_servo_position) < 1:
+        elif (get_servo_position(servo_port) - desired_servo_position) < 0:
             set_servo_position(servo_port, intermediate_position)
             intermediate_position += tics
+        elif (abs(get_servo_position(servo_port) - c.MAX_SERVO_POS) < 30)) or (abs(get_servo_position(servo_port) - c.MIN_SERVO_POS) < 30):
+            break
         else:
-           break
+            break
         msleep(ms)
-        g.update_gyro()
     set_servo_position(servo_port, desired_servo_position)  # Ensures actual desired value is reached. Should be a minor point change
     msleep(30)
-    print "Desired position reached. Curent position is %d" % get_servo_position(servo_port)
-    print "Completed servo_slow\n"
+    print "Desired position reached. Current position is %d" % get_servo_position(servo_port)
+    print "Completed move_servo()\n"
 
 
 #------------------------------- Bump Sensors -------------------------------
