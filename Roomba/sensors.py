@@ -104,6 +104,25 @@ def isSecondDepthSensed():
 def isSecondDepthNotSensed():
     return(analog(c.SECOND_DEPTH_SENSOR) < c.SECOND_DEPTH_CF)
 
+def isBumpSwitchPressed():
+    return(digital(c.BUMP_SWITCH) == 1)
+
+def isBumpSwitchNotPressed():
+    return(digital(c.BUMP_SWITCH) == 0)
+  
+# ---------------------- Wait Until Condition Commands --------------------------------------------
+
+def wait_until(boolean, time=c.SAFETY_TIME):
+    sec = seconds() + time
+    while seconds() < sec and not(boolean()):
+        msleep(1)
+
+def wait_until_pressed_bump_switch(time=c.SAFETY_TIME):
+    wait_until(isBumpSwitchPressed, time)
+
+def wait_until_not_pressed_bump_switch(time=c.SAFETY_TIME):
+    wait_until(isBumpSwitchNotPressed, time)
+
 #-------------------------------------Basic Movement Until Cliff----------------------------------------------
 
 @print_function_name
@@ -1376,7 +1395,7 @@ def wait_for_not_second_depth(time=c.SAFETY_TIME):
 #----------------------------------------------Bump-------------------------------------------
 #-------Base Bumps---------
 
-def base_wfollow_left():
+def base_wfollow_left(speed=1):
     if isRoombaBumped():
         if isRightBumped():
             m.backwards(100)
@@ -1387,10 +1406,12 @@ def base_wfollow_left():
             u.halve_speeds()
             m.base_turn_right()
             c.FIRST_BUMP = False
+        msleep(50)
     else:
-        m.base_veer_left(0.5)
+        m.base_veer_left(0.6)
         c.FIRST_BUMP = True
     u.normalize_speeds()
+    u.change_speeds_by(speed)
     msleep(c.LFOLLOW_REFRESH_RATE)
 
 
@@ -1406,12 +1427,25 @@ def base_wfollow_right():
             m.base_turn_left()
             c.FIRST_BUMP = False
     else:
-        m.base_veer_right(0.5)
+        m.base_veer_right(0.6)
         c.FIRST_BUMP = True
     u.normalize_speeds()
     msleep(c.LFOLLOW_REFRESH_RATE)
 
 
+def base_wfollow_left_smooth(speed):
+    if isRoombaBumped():
+        if c.FIRST_BUMP == True:
+            m.deactivate_motors()
+        m.base_veer_right(0.2)
+        c.FIRST_BUMP = False
+    else:
+        m.base_veer_left(0.6)
+        c.FIRST_BUMP = True
+    u.normalize_speeds()
+    u.change_speeds_by(speed)
+    msleep(c.LFOLLOW_REFRESH_RATE)
+   
 #-------Movement Bumps---------
 
 @print_function_name
@@ -1426,22 +1460,55 @@ def forwards_until_bump(time=c.SAFETY_TIME):
         m.deactivate_motors()
 
 
+@print_function_name
+def backwards_until_pressed_bump_switch(time=c.SAFETY_TIME):
+    m.base_backwards()
+    if time == 0:
+        time = c.SAFETY_TIME_NO_STOP
+    wait_until_pressed_bump_switch(time)
+    if time != c.SAFETY_TIME_NO_STOP:
+        m.deactivate_motors()
+
+            
+
 #-------Wall-Based Bumps---------
 # "wfollow" means "wall follow."
 
 @print_function_name
-def wfollow_left(time, refresh_rate=c.LFOLLOW_REFRESH_RATE):
+def wfollow_left(time, speed=1, refresh_rate=c.LFOLLOW_REFRESH_RATE):
     if time == 0:
         time = c.SAFETY_TIME_NO_STOP
     sec = seconds() + time / 1000.0
     while seconds() < sec:
-        base_wfollow_left()
+        base_wfollow_left(speed)
     u.normalize_speeds()
     if time != c.SAFETY_TIME_NO_STOP:
         m.deactivate_motors()
 
 
+@print_function_name
+def wfollow_left_until(boolean, speed=1, time=c.SAFETY_TIME, refresh_rate=c.LFOLLOW_REFRESH_RATE):
+    if time == 0:
+        time = c.SAFETY_TIME_NO_STOP
+    sec = seconds() + time / 1000.0
+    while seconds() < sec and not(boolean()):
+        base_wfollow_left(speed)
+    u.normalize_speeds()
+    if time != c.SAFETY_TIME_NO_STOP:
+        m.deactivate_motors()
+       
 
+@print_function_name
+def wfollow_left_until_second_depth(time=c.SAFETY_TIME, speed=0.3, refresh_rate=c.LFOLLOW_REFRESH_RATE):
+    wfollow_left_until(isSecondDepthSensed, speed, time)
+
+
+@print_function_name
+def wfollow_left_until_not_second_depth(time=c.SAFETY_TIME, speed=0.3, refresh_rate=c.LFOLLOW_REFRESH_RATE):
+    wfollow_left_until(isSecondDepthNotSensed, speed, time)
+
+
+@print_function_name
 def wfollow_left_until_black_left(time=c.SAFETY_TIME, refresh_rate=c.LFOLLOW_REFRESH_RATE):
     if time == 0:
         time = c.SAFETY_TIME_NO_STOP
@@ -1511,6 +1578,28 @@ def wfollow_left_until_white_left_front(time=c.SAFETY_TIME, refresh_rate=c.LFOLL
     u.normalize_speeds()
     if time != c.SAFETY_TIME_NO_STOP:
         m.deactivate_motors()
+
+
+@print_function_name
+def wfollow_left_smooth_until(boolean, speed, time=c.SAFETY_TIME, refresh_rate=c.LFOLLOW_REFRESH_RATE):
+    if time == 0:
+        time = c.SAFETY_TIME_NO_STOP
+    sec = seconds() + time / 1000.0
+    while seconds() < sec and not(boolean()):
+        base_wfollow_left_smooth(speed)
+    u.normalize_speeds()
+    if time != c.SAFETY_TIME_NO_STOP:
+        m.deactivate_motors()
+
+
+@print_function_name
+def wfollow_left_smooth_until_second_depth(time=c.SAFETY_TIME, speed=0.3, refresh_rate=c.LFOLLOW_REFRESH_RATE):
+    wfollow_left_smooth_until(isSecondDepthSensed, speed)
+
+
+@print_function_name
+def wfollow_left_smooth_until_not_second_depth(time=c.SAFETY_TIME, speed=0.3, refresh_rate=c.LFOLLOW_REFRESH_RATE):
+    wfollow_left_smooth_until(isSecondDepthNotSensed, speed)
 
 
 @print_function_name

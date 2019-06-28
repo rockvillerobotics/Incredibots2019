@@ -27,7 +27,8 @@ def get_left_coupler():
     g.forwards_gyro_until_black_lcliff()
     # Roomba at corner right now
     s.turn_right_until_lfcliff_senses_black()
-    s.lfollow_lfcliff_inside_line_until_rfcliff_senses_black_pid()
+    s.lfollow_lfcliff_inside_line_until_rfcliff_senses_black_pid(0)
+    s.lfollow_lfcliff_inside_line_until_rfcliff_senses_white_pid()
     s.turn_right_until_lfcliff_senses_black()
     s.lfollow_lfcliff_until_bump_pid()
     g.backwards_gyro(100)
@@ -35,18 +36,14 @@ def get_left_coupler():
     s.turn_right_until_rfcliff_senses_black()
     s.lfollow_rfcliff_until_lfcliff_senses_black_pid()
     m.lower_arm()
-    g.turn_left_gyro(15)
-    g.backwards_gyro_until_white_rcliff(0)
-    g.backwards_gyro_until_black_rcliff(0)
-    g.backwards_gyro_until_white_rcliff()
-    #g.backwards_gyro(200)
+    g.turn_left_gyro(20)
+    g.backwards_gyro_until_pressed_bump_switch(1000)
     pick_up_coupler()
 
 
 @print_function_name
 def deliver_left_coupler():
     # Here, the Roomba goes to tne bottom left and bumps PVC
-    #s.lfollow_rfcliff_until_lfcliff_senses_black_pid(0)
     g.forwards_gyro_until_black_lcliff(0)
     g.forwards_gyro_until_bump()
     g.backwards_gyro(10)
@@ -62,6 +59,7 @@ def deliver_left_coupler():
     s.wfollow_right_until_black_left()
     s.align_close_cliffs()
     g.forwards_gyro_through_line_rcliff()
+    # Next to T
     s.turn_right_until_lfcliff_senses_black(0)
     s.turn_right_until_lfcliff_senses_white(0)
     s.turn_right_until_lcliff_senses_black(0)
@@ -69,6 +67,13 @@ def deliver_left_coupler():
     # The Roomba starts delivering the left coupler.
     put_coupler_on_t()
     push_in_coupler()
+    if s.isBumpSwitchPressed():
+        print "I still have the coupler. Better try and put it on again!"
+        m.lift_arm()
+        g.turn_left_gyro(20)
+        g.backwards_gyro(2000)
+        put_coupler_on_t()
+        push_in_coupler()
 
 
 @print_function_name
@@ -76,37 +81,36 @@ def get_right_coupler():
     #turns around and wall follows to bottom right box
     g.turn_right_gyro(180)
     m.lift_arm()
-    s.wfollow_right_until_black_left_front(0)
+    s.wfollow_right_until_black_right_front(0)
     s.wfollow_right_through_line_rcliff()
     s.turn_left_until_rfcliff_senses_black(0)
-    g.turn_left_gyro(5)
+    g.turn_left_gyro(10)
     #turns left and drives to middle black line to align
-    g.forwards_gyro_until_white_lfcliff(0)
-    g.forwards_gyro_through_line_lfcliff()
-    s.align_far_fcliffs()
-    s.align_far_fcliffs()
+    g.forwards_gyro_until_white_lcliff(0)
+    g.forwards_gyro_through_line_lcliff()
     #Drives forward until bumps PVC on top right
     #gets in position to get right coupler
-    g.forwards_gyro_until_bump()
-    g.backwards_gyro(100)
-    g.turn_left_gyro(180)
-    g.forwards_gyro_until_black_lfcliff()
-    s.align_close_fcliffs()
+    s.turn_left_until_rfcliff_senses_black(0)
+    g.turn_left_gyro(75)
     m.lower_arm()
-    g.backwards_gyro(825)
+    g.backwards_gyro_through_line_lcliff(0)
+    g.backwards_gyro_until_white_rcliff()
+    s.align_close_cliffs()
+    g.backwards_gyro_until_pressed_bump_switch(1200)
     pick_up_coupler()
     # Grab right coupler here
 
 
 @print_function_name
-def get_to_magnets():
+def go_to_magnets():
     # TODO: write skeleton of magnets code
-    g.forwards_gyro_until_black_lcliff()
+    g.forwards_gyro_until_black_cliffs()
     s.align_close_cliffs()
     s.turn_left_until_rfcliff_senses_black(0)
     s.turn_left_until_rfcliff_senses_white()
     s.lfollow_rfcliff_until_bump_pid()
     g.backwards_gyro(400)
+
 
 def do_magnets():
     msleep(2000)
@@ -116,12 +120,10 @@ def do_magnets():
 def deliver_right_coupler():
     #Turns right and drives until bumps PVC on Bottom Left
     g.turn_right_gyro()
-    m.lower_arm(3, 1)
     g.forwards_gyro_until_bump()
     g.backwards_gyro(15)
     g.turn_right_gyro()
     #wall follow until middle right box
-    m.lift_arm(3,1)
     # Deliver second valve here.
     put_coupler_on_t()
 
@@ -135,12 +137,16 @@ def pick_up_coupler():
 
 @print_function_name
 def put_coupler_on_t():
-    s.wfollow_left_until_second_depth_sensed()
-    s.wfollow_left_until_second_depth_not_sensed()
-    u.sd()
-    s.wfollow_left(700)
+    s.wfollow_left_until_second_depth(0, speed=1)
+    s.wfollow_left(800)
+    s.wfollow_left_smooth_until_second_depth(0)
+    s.wfollow_left_smooth_until_not_second_depth()
+    m.move_arm(1300)
     turn_right_until_depth()
-    m.move_arm(765)
+    turn_right_until_not_depth()
+    g.turn_left_gyro(5)
+    g.forwards_gyro(50)
+    m.move_arm(865)
             
  
 @print_function_name           
@@ -169,5 +175,26 @@ def backwards_until_second_depth(time=c.SAFETY_TIME):
 def turn_right_until_depth():
     m.base_turn_right()
     s.wait_for_depth()
+    m.deactivate_motors()
+
+
+@print_function_name
+def turn_right_until_not_depth():
+    m.base_turn_right()
+    s.wait_for_not_depth()
+    m.deactivate_motors()
+
+
+@print_function_name
+def turn_left_until_depth():
+    m.base_turn_left()
+    s.wait_for_depth()
+    m.deactivate_motors()
+
+
+@print_function_name
+def turn_left_until_not_depth():
+    m.base_turn_left()
+    s.wait_for_not_depth()
     m.deactivate_motors()
         

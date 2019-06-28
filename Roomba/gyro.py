@@ -137,7 +137,7 @@ def forwards_gyro_until_black_rfcliff(time=c.SAFETY_TIME):
     error = 0
     if time == 0:
         time = c.SAFETY_TIME_NO_STOP
-    sec = seconds() + time
+    sec = seconds() + time / 1000.0
     while seconds() < sec and s.isRightFrontOnWhite():
         left_speed = c.BASE_LM_POWER + error
         right_speed = c.BASE_RM_POWER - error
@@ -155,7 +155,7 @@ def forwards_gyro_until_black_rcliff(time=c.SAFETY_TIME):
     error = 0
     if time == 0:
         time = c.SAFETY_TIME_NO_STOP
-    sec = seconds() + time
+    sec = seconds() + time / 1000.0
     while seconds() < sec and s.isRightOnWhite():
         left_speed = c.BASE_LM_POWER + error
         right_speed = c.BASE_RM_POWER - error
@@ -173,7 +173,7 @@ def forwards_gyro_until_black_lfcliff(time=c.SAFETY_TIME):
     error = 0
     if time == 0:
         time = c.SAFETY_TIME_NO_STOP
-    sec = seconds() + time
+    sec = seconds() + time / 1000.0
     while seconds() < sec and s.isLeftFrontOnWhite():
         left_speed = c.BASE_LM_POWER + error
         right_speed = c.BASE_RM_POWER - error
@@ -191,7 +191,7 @@ def forwards_gyro_until_black_lcliff(time=c.SAFETY_TIME):
     error = 0
     if time == 0:
         time = c.SAFETY_TIME_NO_STOP
-    sec = seconds() + time
+    sec = seconds() + time / 1000.0
     while seconds() < sec and s.isLeftOnWhite():
         left_speed = c.BASE_LM_POWER + error
         right_speed = c.BASE_RM_POWER - error
@@ -209,7 +209,7 @@ def forwards_gyro_until_white_rfcliff(time=c.SAFETY_TIME):
     error = 0
     if time == 0:
         time = c.SAFETY_TIME_NO_STOP
-    sec = seconds() + time
+    sec = seconds() + time / 1000.0
     while seconds() < sec and s.isRightFrontOnBlack():
         left_speed = c.BASE_LM_POWER + error
         right_speed = c.BASE_RM_POWER - error
@@ -226,7 +226,7 @@ def forwards_gyro_until_white_rcliff(time=c.SAFETY_TIME):
     error = 0
     if time == 0:
         time = c.SAFETY_TIME_NO_STOP
-    sec = seconds() + time
+    sec = seconds() + time / 1000.0
     while seconds() < sec and s.isRightOnBlack():
         left_speed = c.BASE_LM_POWER + error
         right_speed = c.BASE_RM_POWER - error
@@ -244,7 +244,7 @@ def forwards_gyro_until_white_lfcliff(time=c.SAFETY_TIME):
     error = 0
     if time == 0:
         time = c.SAFETY_TIME_NO_STOP
-    sec = seconds() + time
+    sec = seconds() + time / 1000.0
     while seconds() < sec and s.isLeftFrontOnBlack():
         left_speed = c.BASE_LM_POWER + error
         right_speed = c.BASE_RM_POWER - error
@@ -262,8 +262,26 @@ def forwards_gyro_until_white_lcliff(time=c.SAFETY_TIME):
     error = 0
     if time == 0:
         time = c.SAFETY_TIME_NO_STOP
-    sec = seconds() + time
+    sec = seconds() + time / 1000.0
     while seconds() < sec and s.isLeftOnBlack():
+        left_speed = c.BASE_LM_POWER + error
+        right_speed = c.BASE_RM_POWER - error
+        m.activate_motors(left_speed, right_speed)
+        msleep(10)
+        angle += (gyro_z() - bias) * 10
+        error = 0.003830106222 * angle  # Positive error means veering left. Negative means veering right.
+    if time != c.SAFETY_TIME_NO_STOP:
+        m.deactivate_motors()
+
+
+@print_function_name
+def forwards_gyro_until_black_cliffs(time=c.SAFETY_TIME):
+    angle = 0
+    error = 0
+    if time == 0:
+        time = c.SAFETY_TIME_NO_STOP
+    sec = seconds() + time / 1000.0
+    while seconds() < sec and s.isRightOnWhite() and s.isLeftOnWhite():
         left_speed = c.BASE_LM_POWER + error
         right_speed = c.BASE_RM_POWER - error
         m.activate_motors(left_speed, right_speed)
@@ -280,7 +298,7 @@ def backwards_gyro_until_black_rfcliff(time=c.SAFETY_TIME):
     error = 0
     if time == 0:
         time = c.SAFETY_TIME_NO_STOP
-    sec = seconds() + time
+    sec = seconds() + time / 1000.0
     while seconds() < sec and s.isRightFrontOnWhite():
         left_speed = -c.BASE_LM_POWER + error
         right_speed = -c.BASE_RM_POWER - error
@@ -298,7 +316,7 @@ def backwards_gyro_until_black_rcliff(time=c.SAFETY_TIME):
     error = 0
     if time == 0:
         time = c.SAFETY_TIME_NO_STOP
-    sec = seconds() + time
+    sec = seconds() + time / 1000.0
     while seconds() < sec and s.isRightOnWhite():
         left_speed = -c.BASE_LM_POWER + error
         right_speed = -c.BASE_RM_POWER - error
@@ -316,7 +334,7 @@ def backwards_gyro_until_black_lfcliff(time=c.SAFETY_TIME):
     error = 0
     if time == 0:
         time = c.SAFETY_TIME_NO_STOP
-    sec = seconds() + time
+    sec = seconds() + time / 1000.0
     while seconds() < sec and s.isLeftFrontOnWhite():
         left_speed = -c.BASE_LM_POWER + error
         right_speed = -c.BASE_RM_POWER - error
@@ -334,7 +352,7 @@ def backwards_gyro_until_black_lcliff(time=c.SAFETY_TIME):
     error = 0
     if time == 0:
         time = c.SAFETY_TIME_NO_STOP
-    sec = seconds() + time
+    sec = seconds() + time / 1000.0
     while seconds() < sec and s.isLeftOnWhite():
         left_speed = -c.BASE_LM_POWER + error
         right_speed = -c.BASE_RM_POWER - error
@@ -352,7 +370,7 @@ def backwards_gyro_until_white_rfcliff(time=c.SAFETY_TIME):
     error = 0
     if time == 0:
         time = c.SAFETY_TIME_NO_STOP
-    sec = seconds() + time
+    sec = seconds() + time / 1000.0
     while seconds() < sec and s.isRightFrontOnBlack():
         left_speed = -c.BASE_LM_POWER + error
         right_speed = -c.BASE_RM_POWER - error
@@ -369,7 +387,7 @@ def backwards_gyro_until_white_rcliff(time=c.SAFETY_TIME):
     error = 0
     if time == 0:
         time = c.SAFETY_TIME_NO_STOP
-    sec = seconds() + time
+    sec = seconds() + time / 1000.0
     while seconds() < sec and s.isRightOnBlack():
         left_speed = -c.BASE_LM_POWER + error
         right_speed = -c.BASE_RM_POWER - error
@@ -387,7 +405,7 @@ def backwards_gyro_until_white_lfcliff(time=c.SAFETY_TIME):
     error = 0
     if time == 0:
         time = c.SAFETY_TIME_NO_STOP
-    sec = seconds() + time
+    sec = seconds() + time / 1000.0
     while seconds() < sec and s.isLeftFrontOnBlack():
         left_speed = -c.BASE_LM_POWER + error
         right_speed = -c.BASE_RM_POWER - error
@@ -405,7 +423,7 @@ def backwards_gyro_until_white_lcliff(time=c.SAFETY_TIME):
     error = 0
     if time == 0:
         time = c.SAFETY_TIME_NO_STOP
-    sec = seconds() + time
+    sec = seconds() + time / 1000.0
     while seconds() < sec and s.isLeftOnBlack():
         left_speed = -c.BASE_LM_POWER - error
         right_speed = -c.BASE_RM_POWER + error
@@ -472,7 +490,7 @@ def backwards_gyro_until_second_depth(time=c.SAFETY_TIME):
     error = 0
     if time == 0:
         time = c.SAFETY_TIME_NO_STOP
-    sec = seconds() + time
+    sec = seconds() + time / 1000.0
     while seconds() < sec and s.isSecondDepthNotSensed():
         left_speed = -c.BASE_LM_POWER + error
         right_speed = -c.BASE_RM_POWER - error
@@ -491,7 +509,7 @@ def forwards_gyro_until_bump(time=c.SAFETY_TIME):
     error = 0
     if time == 0:
         time = c.SAFETY_TIME_NO_STOP
-    sec = seconds() + time
+    sec = seconds() + time / 1000.0
     while seconds() < sec and s.isRoombaNotBumped():
         left_speed = c.BASE_LM_POWER + error
         right_speed = c.BASE_RM_POWER - error
@@ -502,9 +520,23 @@ def forwards_gyro_until_bump(time=c.SAFETY_TIME):
     if time != c.SAFETY_TIME_NO_STOP:
         m.deactivate_motors()
 
-
-
-
+@print_function_name
+def backwards_gyro_until_pressed_bump_switch(time=c.SAFETY_TIME):
+    angle = 0
+    error = 0
+    if time == 0:
+        time = c.SAFETY_TIME_NO_STOP
+    sec = seconds() + time / 1000.0
+    while seconds() < sec and s.isBumpSwitchNotPressed():
+        left_speed = -c.BASE_LM_POWER + error
+        right_speed = -c.BASE_RM_POWER - error
+        m.activate_motors(left_speed, right_speed)
+        msleep(10)
+        angle += (gyro_z() - bias) * 10
+        error = 0.003830106222 * angle  # Positive error means veering left. Negative means veering right.
+    if time != c.SAFETY_TIME_NO_STOP:
+        m.deactivate_motors()
+    
 
 #--------------------------------Wall Assisted Gyro Commands---------------------------------------------
 @print_function_name
@@ -515,7 +547,7 @@ def forwards_gyro_wall_assisted_on_left(time=c.SAFETY_TIME, kp=1):
     first_bump = False
     if time == 0:
         time = c.SAFETY_TIME_NO_STOP
-    sec = seconds() + time
+    sec = seconds() + time / 1000.0
     while seconds() < sec:
         if s.isRoombaBumped():
             if first_bump == True:
@@ -558,7 +590,7 @@ def forwards_gyro_wall_assisted_on_right(time=c.SAFETY_TIME, kp=1):
     target_angle = 0
     if time == 0:
         time = c.SAFETY_TIME_NO_STOP
-    sec = seconds() + time
+    sec = seconds() + time / 1000.0
     while seconds() < sec:
         if s.isRoombaBumped():
             u.halve_speeds()

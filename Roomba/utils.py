@@ -329,7 +329,7 @@ def normalize_speeds():
     c.BASE_RM_POWER = c.FULL_RM_POWER
 
 
-@print_function_name
+#@print_function_name
 def change_speeds_by(modifier):
     c.BASE_LM_POWER = int(c.BASE_LM_POWER * modifier)
     c.BASE_RM_POWER = int(c.BASE_RM_POWER * modifier)
