@@ -1,0 +1,24 @@
+# .travis.yml created by Research and Development member, "0xCBA"
+os: linux
+dist: xenial # Use Ubuntu 16.04 as our Travis CI environment
+language: python
+python: "2.7"
+env: LEGOBOT_DIR="$TRAVIS_BUILD_DIR/Legobot" \
+     ROOMBA_DIR="$TRAVIS_BUILD_DIR/Roomba" \
+     WALLABY_PY="$TRAVIS_BUILD_DIR/.travis/wallaby.py" \
+     YELLOW="\033[1;33m" \
+     NC="\033[0m" # No Color
+
+install:
+  # Install required dependencies
+  - pip install --upgrade pylint # Use pip to install Pylint
+
+before_script:
+  # Copy wallaby.py into the robot directories
+  - cp $WALLABY_PY $LEGOBOT_DIR/
+  - cp $WALLABY_PY $ROOMBA_DIR/
+
+script:
+  # Lint the Python files; wallaby.py is ignored due to a pylint directive in the file
+  - echo -e "${YELLOW}Analyzing Legobot code...${NC}" && pylint --errors-only $LEGOBOT_DIR/*.py
+  - echo -e "${YELLOW}Analyzing Roomba code...${NC}" && pylint --errors-only $ROOMBA_DIR/*.py
