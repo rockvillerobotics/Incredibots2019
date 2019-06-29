@@ -16,7 +16,7 @@ def main():
     a.get_left_coupler()
     a.deliver_left_coupler()
     a.get_right_coupler()
-    a.get_to_magnets()
+    a.go_to_magnets()
     a.do_magnets()
     a.deliver_right_coupler()
     print "Finished main\n"
