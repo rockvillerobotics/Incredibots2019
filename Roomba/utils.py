@@ -27,8 +27,13 @@ def setup():
     msleep(20)
     g.calibrate_gyro()
     enable_servo(c.ARM_SERVO)
-    print "Servo enabled = %d\n" % get_servo_enabled(c.ARM_SERVO)
+    enable_servo(c.MAGNET_ARM_SERVO)
+    enable_servo(c.MICRO_SERVO)
+    print "Arm servo enabled = %d\n" % get_servo_enabled(c.ARM_SERVO)
+    print "Magnet arm servo enabled = %d\n" % get_servo_enabled(c.MAGNET_ARM_SERVO)
     m.move_arm(c.ARM_START_POS)
+    m.move_magnet_arm(c.MAGNET_ARM_START_POS)
+    m.move_micro(c.MICRO_START_POS)
     print "Setup complete\n"
 
 
@@ -159,7 +164,7 @@ def calibrate_with_gyro_angle_calibration():
     c.LCLIFF_BW = ((c.MAX_SENSOR_VALUE_LCLIFF + c.MIN_SENSOR_VALUE_LCLIFF) / 2) - 100
     c.RCLIFF_BW = ((c.MAX_SENSOR_VALUE_RCLIFF + c.MIN_SENSOR_VALUE_RCLIFF) / 2) - 100
     c.LFCLIFF_BW = ((c.MAX_SENSOR_VALUE_LFCLIFF + c.MIN_SENSOR_VALUE_LFCLIFF) / 2) - 100
-    c.RFCLIFF_BW = ((c.MAX_SENSOR_VALUE_RFCLIFF + c.MIN_SENSOR_VALUE_RFCLIFF) / 2) - 200
+    c.RFCLIFF_BW = ((c.MAX_SENSOR_VALUE_RFCLIFF + c.MIN_SENSOR_VALUE_RFCLIFF) / 2)
     c.BASE_LM_POWER = int((total_left_speed * 2) / run_throughs)
     c.BASE_RM_POWER = int((total_right_speed * 2) / run_throughs)
     c.FULL_LM_POWER = c.BASE_LM_POWER

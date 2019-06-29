@@ -126,8 +126,17 @@ def wait_until(boolean, time=c.SAFETY_TIME):
 def wait_until_pressed_bump_switch(time=c.SAFETY_TIME):
     wait_until(isBumpSwitchPressed, time)
 
+
 def wait_until_not_pressed_bump_switch(time=c.SAFETY_TIME):
     wait_until(isBumpSwitchNotPressed, time)
+
+
+def wait_until_item_in_claw(time=c.SAFETY_TIME):
+    wait_until(isItemInClaw, time)
+
+
+def wait_until_nothing_in_claw(time=c.SAFETY_TIME):
+    wait_until(isNothingInClaw, time)
 
 #-------------------------------------Basic Movement Until Cliff----------------------------------------------
 
