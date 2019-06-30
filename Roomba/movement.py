@@ -41,6 +41,9 @@ def base_veer_left(veer_multiplier=1, speed_multiplier=1.0):
 def base_veer_right(veer_multiplier=1, speed_multiplier=1.0):
     activate_motors(int(speed_multiplier * c.BASE_LM_POWER), int(speed_multiplier * veer_multiplier * 0.7 * c.BASE_RM_POWER))
 
+def base_veer(veer_multiplier_left=1, veer_multiplier_right=1, speed_multiplier=1.0):
+    activate_motors(int(speed_multiplier * veer_multiplier_left * c.BASE_LM_POWER), int(speed_multiplier * veer_multiplier_right * c.BASE_RM_POWER))
+
 #-----------------------------Basic Movement-------------------------
 
 def activate_motors(left_motor_power=c.BASE_POWER, right_motor_power=c.BASE_POWER):
@@ -138,61 +141,89 @@ def av(motor_port, motor_power):
 
 def lift_arm(tics=3, ms=1, servo_position=c.ARM_UP_POS):
     print "Lifting servo to: %d" % servo_position
-    if servo_position > c.MAX_ARM_SERVO_POS:
-        print "Invalid desired servo position\n"
-        exit(86)
-    if servo_position < c.MIN_ARM_SERVO_POS:
-        print "Invalid desired servo position\n"
-        exit(86)
-    move_servo(c.ARM_SERVO, servo_position, tics, ms)
+    move_arm(servo_position, tics, ms)
     print "Arm reached up position: %d" % get_servo_position(c.ARM_SERVO)
 
             
 def lower_arm(tics=3, ms=1, servo_position=c.ARM_DOWN_POS):
     print "Lowering arm to: %d" % servo_position
-    if servo_position > c.MAX_ARM_SERVO_POS:
-        print "Invalid desired servo position\n"
-        exit(86)
-    if servo_position < c.MIN_ARM_SERVO_POS:
-        print "Invalid desired servo position\n"
-        exit(86)
-    move_servo(c.ARM_SERVO, servo_position, tics, ms)
+    move_arm(servo_position, tics, ms)
     print "Arm reached down position: %d" % get_servo_position(c.ARM_SERVO)
             
-                    
+
+def lift_magnet_arm(tics=3, ms=1, servo_position=c.MAGNET_ARM_UP_POS):
+    print "Lifting magnet arm to: %d" % servo_position
+    move_magnet_arm(servo_position, tics, ms)
+    print "Arm reached up position: %d" % get_servo_position(c.ARM_SERVO)
+
+            
+def lower_magnet_arm(tics=3, ms=1, servo_position=c.MAGNET_ARM_DOWN_POS):
+    print "Lowering magnet arm to: %d" % servo_position
+    move_magnet_arm(servo_position, tics, ms)
+    print "Arm reached down position: %d" % get_servo_position(c.ARM_SERVO)
+
+      
 def open_claw(tics=3, ms=1, servo_position=c.CLAW_OPEN_POS):
     print "Opening claw to: %d" % servo_position
-    if servo_position > c.MAX_ARM_SERVO_POS:
-        print "Invalid desired servo position\n"
-        exit(86)
-    if servo_position < c.MIN_ARM_SERVO_POS:
-        print "Invalid desired servo position\n"
-        exit(86)
-    move_servo(c.CLAW_SERVO, servo_position, tics, ms)
+    move_claw(servo_position, tics, ms)
     print "Claw reached close position: %d" % get_servo_position(c.CLAW_SERVO)
 
 
 def close_claw(tics=3, ms=1, servo_position=c.CLAW_CLOSE_POS):
     print "Closing claw to: %d" % servo_position
-    if servo_position > c.MAX_ARM_SERVO_POS:
-        print "Invalid desired servo position\n"
-        exit(86)
-    if servo_position < c.MIN_ARM_SERVO_POS:
-        print "Invalid desired servo position\n"
-        exit(86)
-    move_servo(c.CLAW_SERVO, servo_position, tics, ms)
+    move_claw(servo_position, tics, ms)
     print "Claw reached close position: %d" % get_servo_position(c.CLAW_SERVO)
 
 
+def lift_micro(tics=3, ms=1, servo_position=c.MICRO_UP_POS):
+    print "Lifting micro to: %d" % servo_position
+    move_micro(servo_position, tics, ms)
+    print "Micro reached up position: %d" % get_servo_position(c.MICRO_SERVO)
+
+            
+def retract_micro(tics=3, ms=1, servo_position=c.MICRO_RETRACTED_POS):
+    print "Retracting micro to: %d" % servo_position
+    move_micro(servo_position, tics, ms)
+    print "Micro reached down position: %d" % get_servo_position(c.MICRO_SERVO)
+
+
 def move_arm(desired_arm_position=c.ARM_DOWN_POS, arm_tics=3, arm_ms=1):
+    if desired_arm_position > c.MAX_ARM_POS:
+        print "Invalid desired servo position\n"
+        exit(86)
+    if desired_arm_position < c.MIN_ARM_POS:
+        print "Invalid desired servo position\n"
+        exit(86)
     move_servo(c.ARM_SERVO, desired_arm_position, arm_tics, arm_ms)
 
 
-def move_micro(desired_micro_position=c.MICRO_LEFT_POS, micro_tics=3, micro_ms=1):
+def move_magnet_arm(desired_magnet_arm_position=c.MAGNET_ARM_DOWN_POS, magnet_arm_tics=3, magnet_arm_ms=1):
+    if desired_magnet_arm_position > c.MAX_MAGNET_ARM_POS:
+        print "Invalid desired servo position\n"
+        exit(86)
+    if desired_magnet_arm_position < c.MIN_MAGNET_ARM_POS:
+        print "Invalid desired servo position\n"
+        exit(86)
+    move_servo(c.MAGNET_ARM_SERVO, desired_magnet_arm_position, magnet_arm_tics, magnet_arm_ms)
+
+
+def move_micro(desired_micro_position=c.MICRO_RETRACTED_POS, micro_tics=3, micro_ms=1):
+    if desired_micro_position > c.MAX_MICRO_POS:
+        print "Invalid desired servo position\n"
+        exit(86)
+    if desired_micro_position < c.MIN_MICRO_POS:
+        print "Invalid desired servo position\n"
+        exit(86)
     move_servo(c.MICRO_SERVO, desired_micro_position, micro_tics, micro_ms)
 
 
 def move_claw(desired_claw_position=c.CLAW_CLOSE_POS, claw_tics=3, claw_ms=1):
+    if desired_claw_position > c.MAX_CLAW_POS:
+        print "Invalid desired servo position\n"
+        exit(86)
+    if desired_claw_position < c.MIN_CLAW_POS:
+        print "Invalid desired servo position\n"
+        exit(86)
     move_servo(c.CLAW_SERVO, desired_claw_position, claw_tics, claw_ms)
         
 def move_servo(servo_port, desired_servo_position, tics=3, ms=1):

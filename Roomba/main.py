@@ -13,6 +13,8 @@ def main():
     print "Starting main()\n"
     u.setup()
     u.calibrate()  # You only need to include this command if you want the cliffs to sense better at the cost of speed.
+    #a.test_coupler_delivery()
+    #u.sd()
     a.get_left_coupler()
     a.deliver_left_coupler()
     a.get_right_coupler()

@@ -484,6 +484,7 @@ def backwards_gyro_through_line_rfcliff(time=c.SAFETY_TIME):
 
 
 #--------------------------------Gyro Movement Until Depth---------------------------------------------
+
 @print_function_name
 def backwards_gyro_until_second_depth(time=c.SAFETY_TIME):
     angle = 0
@@ -500,6 +501,25 @@ def backwards_gyro_until_second_depth(time=c.SAFETY_TIME):
         error = 0.003830106222 * angle  # Positive error means veering left. Negative means veering right.
     if time != c.SAFETY_TIME_NO_STOP:
         m.deactivate_motors()
+
+#--------------------------------Gyro Movement Until Tophat---------------------------------------------
+
+def backwards_gyro_until_item_is_in_claw(time=c.SAFETY_TIME):
+    angle = 0
+    error = 0
+    if time == 0:
+        time = c.SAFETY_TIME_NO_STOP
+    sec = seconds() + time / 1000.0
+    while seconds() < sec and s.isNothingInClaw():
+        left_speed = -c.BASE_LM_POWER + error
+        right_speed = -c.BASE_RM_POWER - error
+        m.activate_motors(left_speed, right_speed)
+        msleep(10)
+        angle += (gyro_z() - bias) * 10
+        error = 0.003830106222 * angle  # Positive error means veering left. Negative means veering right.
+    if time != c.SAFETY_TIME_NO_STOP:
+        m.deactivate_motors()
+
 
 #--------------------------------Bump Gyro Commands---------------------------------------------
 

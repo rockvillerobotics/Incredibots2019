@@ -109,7 +109,19 @@ def isBumpSwitchPressed():
 
 def isBumpSwitchNotPressed():
     return(digital(c.BUMP_SWITCH) == 0)
-  
+
+def isItemInClaw():
+    if c.CLAW_TOPHAT_COUPLER_READING > c.CLAW_TOPHAT_COUPLER_READING:
+        return(analog(c.CLAW_TOPHAT) > c.CLAW_TOPHAT_BW)
+    else:
+        return(analog(c.CLAW_TOPHAT) < c.CLAW_TOPHAT_BW)
+
+def isNothingInClaw():
+    if c.CLAW_TOPHAT_COUPLER_READING > c.CLAW_TOPHAT_COUPLER_READING:
+        return(analog(c.CLAW_TOPHAT) < c.CLAW_TOPHAT_BW)
+    else:
+        return(analog(c.CLAW_TOPHAT) > c.CLAW_TOPHAT_BW)
+
 # ---------------------- Wait Until Condition Commands --------------------------------------------
 
 def wait_until(boolean, time=c.SAFETY_TIME):
@@ -120,8 +132,17 @@ def wait_until(boolean, time=c.SAFETY_TIME):
 def wait_until_pressed_bump_switch(time=c.SAFETY_TIME):
     wait_until(isBumpSwitchPressed, time)
 
+
 def wait_until_not_pressed_bump_switch(time=c.SAFETY_TIME):
     wait_until(isBumpSwitchNotPressed, time)
+
+
+def wait_until_item_in_claw(time=c.SAFETY_TIME):
+    wait_until(isItemInClaw, time)
+
+
+def wait_until_nothing_in_claw(time=c.SAFETY_TIME):
+    wait_until(isNothingInClaw, time)
 
 #-------------------------------------Basic Movement Until Cliff----------------------------------------------
 
@@ -903,6 +924,40 @@ def lfollow_rfcliff_until_lfcliff_senses_black_pid(time=c.SAFETY_TIME, bias=10):
         m.deactivate_motors()
 
 
+def lfollow_rfcliff_until_lfcliff_senses_white_pid(time=c.SAFETY_TIME, bias=10):
+    target = 100.0 * (c.RFCLIFF_BW - c.MIN_SENSOR_VALUE_RFCLIFF) / (c.MAX_SENSOR_VALUE_RFCLIFF - c.MIN_SENSOR_VALUE_RFCLIFF) + bias
+    last_error = 0
+    integral = 0
+    if time == 0:
+        time = c.SAFETY_TIME_NO_STOP
+    sec = seconds() + time / 1000.0
+    while seconds() < sec and isLeftFrontOnBlack():
+        norm_reading = 100.0 * (get_create_rfcliff_amt() - c.MIN_SENSOR_VALUE_RFCLIFF) / (c.MAX_SENSOR_VALUE_RFCLIFF - c.MIN_SENSOR_VALUE_RFCLIFF)
+        error = target - norm_reading  # Positive error means black, negative means white.
+        derivative = error - last_error  # If rate of change is going negative, need to veer left
+        last_error = error
+        integral = 0.5 * integral + error
+        if error > 30 or error < -30:
+            kp = 1.56
+            ki = c.KI
+            kd = c.KD
+        elif error < 1 and error > -1:
+            kp = 0.67
+            ki = 0
+            kd = 0
+        else:
+            kp = c.KP
+            ki = c.KI
+            kd = c.KD
+        left_power = c.BASE_LM_POWER - ((kp * error) + (ki * integral) + (kd * derivative))
+        right_power = c.BASE_RM_POWER + ((kp * error) - (ki * integral) + (kd * derivative))  # Addition decreases power here
+        create_drive_direct(int(left_power), int(right_power))
+        c.CURRENT_LM_POWER = left_power
+        c.CURRENT_RM_POWER = right_power
+    if time != c.SAFETY_TIME_NO_STOP:
+        m.deactivate_motors()
+
+
 def lfollow_rfcliff_until_bump_pid(time=c.SAFETY_TIME, bias=10):
     target = 100.0 * (c.RFCLIFF_BW - c.MIN_SENSOR_VALUE_RFCLIFF) / (c.MAX_SENSOR_VALUE_RFCLIFF - c.MIN_SENSOR_VALUE_RFCLIFF) + bias
     last_error = 0
@@ -1437,6 +1492,40 @@ def base_wfollow_left_smooth(speed):
     if isRoombaBumped():
         if c.FIRST_BUMP == True:
             m.deactivate_motors()
+        if speed == 1:
+            c.BASE_LM_POWER = c.FULL_LM_POWER * 1.3
+        m.base_veer_right(0.9)
+        c.FIRST_BUMP = False
+    else:
+
+        m.base_veer_left(0.9)
+        c.FIRST_BUMP = True
+    u.normalize_speeds()
+    u.change_speeds_by(speed)
+    msleep(c.LFOLLOW_REFRESH_RATE)
+
+
+def base_wfollow_right_smooth(speed):
+    if isRoombaBumped():
+        if c.FIRST_BUMP == True:
+            m.deactivate_motors()
+        if speed == 1:
+            c.BASE_LM_POWER = c.FULL_LM_POWER * 1.3
+        m.base_veer_left(0.9)
+        c.FIRST_BUMP = False
+    else:
+
+        m.base_veer_right(0.9)
+        c.FIRST_BUMP = True
+    u.normalize_speeds()
+    u.change_speeds_by(speed)
+    msleep(c.LFOLLOW_REFRESH_RATE)
+
+
+def base_wfollow_left_slowly_smooth(speed=0.3):
+    if isRoombaBumped():
+        if c.FIRST_BUMP == True:
+            m.deactivate_motors()
         m.base_veer_right(0.2)
         c.FIRST_BUMP = False
     else:
@@ -1445,7 +1534,21 @@ def base_wfollow_left_smooth(speed):
     u.normalize_speeds()
     u.change_speeds_by(speed)
     msleep(c.LFOLLOW_REFRESH_RATE)
-   
+
+
+def base_wfollow_right_slowly_smooth(speed=0.3):
+    if isRoombaBumped():
+        if c.FIRST_BUMP == True:
+            m.deactivate_motors()
+        m.base_veer_left(0.2)
+        c.FIRST_BUMP = False
+    else:
+        m.base_veer_right(0.6)
+        c.FIRST_BUMP = True
+    u.normalize_speeds()
+    u.change_speeds_by(speed)
+    msleep(c.LFOLLOW_REFRESH_RATE)
+
 #-------Movement Bumps---------
 
 @print_function_name
@@ -1470,8 +1573,36 @@ def backwards_until_pressed_bump_switch(time=c.SAFETY_TIME):
         m.deactivate_motors()
 
             
+#------- Wall-Aligns ---------
 
-#-------Wall-Based Bumps---------
+@print_function_name
+def align_on_wall_left():
+    m.base_veer_left(0.5)
+    wait_until(isRoombaBumped)
+    m.deactivate_motors()
+    u.halve_speeds()
+    m.base_turn_right()
+    wait_until(isRoombaNotBumped)
+    m.deactivate_motors()
+    msleep(100)
+    g.turn_left_gyro(4)
+    msleep(500)
+
+
+print_function_name
+def align_on_wall_right():
+    m.base_veer_right(0.5)
+    wait_until(isRoombaBumped)
+    m.deactivate_motors()
+    u.halve_speeds()
+    m.base_turn_left()
+    wait_until(isRoombaNotBumped)
+    m.deactivate_motors()
+    msleep(100)
+    g.turn_right_gyro(4)
+    msleep(500)
+
+#------- Wall-Based Bumps ---------
 # "wfollow" means "wall follow."
 
 @print_function_name
@@ -1581,25 +1712,8 @@ def wfollow_left_until_white_left_front(time=c.SAFETY_TIME, refresh_rate=c.LFOLL
 
 
 @print_function_name
-def wfollow_left_smooth_until(boolean, speed, time=c.SAFETY_TIME, refresh_rate=c.LFOLLOW_REFRESH_RATE):
-    if time == 0:
-        time = c.SAFETY_TIME_NO_STOP
-    sec = seconds() + time / 1000.0
-    while seconds() < sec and not(boolean()):
-        base_wfollow_left_smooth(speed)
-    u.normalize_speeds()
-    if time != c.SAFETY_TIME_NO_STOP:
-        m.deactivate_motors()
-
-
-@print_function_name
-def wfollow_left_smooth_until_second_depth(time=c.SAFETY_TIME, speed=0.3, refresh_rate=c.LFOLLOW_REFRESH_RATE):
-    wfollow_left_smooth_until(isSecondDepthSensed, speed)
-
-
-@print_function_name
-def wfollow_left_smooth_until_not_second_depth(time=c.SAFETY_TIME, speed=0.3, refresh_rate=c.LFOLLOW_REFRESH_RATE):
-    wfollow_left_smooth_until(isSecondDepthNotSensed, speed)
+def wfollow_right_smooth_until_white_lcliff(time=c.SAFETY_TIME, speed=1, refresh_rate=c.LFOLLOW_REFRESH_RATE):
+    wfollow_right_smooth_until(isRightOnWhite, speed)
 
 
 @print_function_name
@@ -1768,6 +1882,138 @@ def wfollow_right_through_line_lcliff(time=c.SAFETY_TIME):
 def wfollow_right_through_line_rcliff(time=c.SAFETY_TIME):
     wfollow_right_until_black_right(0)
     wfollow_right_until_white_right(time)
+
+
+# ---------- Wall Follow Smooth Commands -------------------
+@print_function_name
+def wfollow_left_smooth_until(boolean, speed, time=c.SAFETY_TIME, refresh_rate=c.LFOLLOW_REFRESH_RATE):
+    if time == 0:
+        time = c.SAFETY_TIME_NO_STOP
+    sec = seconds() + time / 1000.0
+    while seconds() < sec and not(boolean()):
+        base_wfollow_left_smooth(speed)
+    u.normalize_speeds()
+    if time != c.SAFETY_TIME_NO_STOP:
+        m.deactivate_motors()
+
+
+@print_function_name
+def wfollow_left_smooth_slowly_until(boolean, speed, time=c.SAFETY_TIME, refresh_rate=c.LFOLLOW_REFRESH_RATE):
+    if time == 0:
+        time = c.SAFETY_TIME_NO_STOP
+    sec = seconds() + time / 1000.0
+    while seconds() < sec and not(boolean()):
+        base_wfollow_left_slowly_smooth(speed)
+    u.normalize_speeds()
+    if time != c.SAFETY_TIME_NO_STOP:
+        m.deactivate_motors()
+
+
+@print_function_name
+def wfollow_left_smooth_slowly_until_second_depth(time=c.SAFETY_TIME, speed=0.3, refresh_rate=c.LFOLLOW_REFRESH_RATE):
+    wfollow_left_smooth_slowly_until(isSecondDepthSensed, speed, time)
+
+
+@print_function_name
+def wfollow_left_smooth_slowly_until_not_second_depth(time=c.SAFETY_TIME, speed=0.3, refresh_rate=c.LFOLLOW_REFRESH_RATE):
+    wfollow_left_smooth_slowly_until(isSecondDepthNotSensed, speed, time)
+
+
+@print_function_name
+def wfollow_left_smooth_until_black_lfcliff(time=c.SAFETY_TIME, speed=1, refresh_rate=c.LFOLLOW_REFRESH_RATE):
+    wfollow_left_smooth_until(isLeftFrontOnBlack, speed, time)
+
+
+@print_function_name
+def wfollow_left_smooth_until_black_rfcliff(time=c.SAFETY_TIME, speed=1, refresh_rate=c.LFOLLOW_REFRESH_RATE):
+    wfollow_left_smooth_until(isRightFrontOnBlack, speed, time)
+
+
+@print_function_name
+def wfollow_left_smooth_until_black_lcliff(time=c.SAFETY_TIME, speed=1, refresh_rate=c.LFOLLOW_REFRESH_RATE):
+    wfollow_left_smooth_until(isLeftOnBlack, speed, time)
+
+
+@print_function_name
+def wfollow_left_smooth_until_black_rcliff(time=c.SAFETY_TIME, speed=1, refresh_rate=c.LFOLLOW_REFRESH_RATE):
+    wfollow_left_smooth_until(isRightOnBlack, speed, time)
+
+
+@print_function_name
+def wfollow_left_smooth_until_white_lfcliff(time=c.SAFETY_TIME, speed=1, refresh_rate=c.LFOLLOW_REFRESH_RATE):
+    wfollow_left_smooth_until(isLeftFrontOnWhite, speed, time)
+
+
+@print_function_name
+def wfollow_left_smooth_until_white_lfcliff(time=c.SAFETY_TIME, speed=1, refresh_rate=c.LFOLLOW_REFRESH_RATE):
+    wfollow_left_smooth_until(isRightFrontOnWhite, speed, time)
+
+
+@print_function_name
+def wfollow_left_smooth_until_white_lcliff(time=c.SAFETY_TIME, speed=1, refresh_rate=c.LFOLLOW_REFRESH_RATE):
+    wfollow_left_smooth_until(isLeftOnWhite, speed, time)
+
+
+@print_function_name
+def wfollow_left_smooth_until_white_lcliff(time=c.SAFETY_TIME, speed=1, refresh_rate=c.LFOLLOW_REFRESH_RATE):
+    wfollow_left_smooth_until(isRightOnWhite, speed, time)
+
+
+@print_function_name
+def wfollow_right_smooth_until(boolean, speed, time=c.SAFETY_TIME, refresh_rate=c.LFOLLOW_REFRESH_RATE):
+    if time == 0:
+        time = c.SAFETY_TIME_NO_STOP
+    sec = seconds() + time / 1000.0
+    while seconds() < sec and not(boolean()):
+        base_wfollow_right_smooth(speed)
+    u.normalize_speeds()
+    if time != c.SAFETY_TIME_NO_STOP:
+        m.deactivate_motors()
+
+
+@print_function_name
+def wfollow_right_smooth_until_second_depth(time=c.SAFETY_TIME, speed=0.3, refresh_rate=c.LFOLLOW_REFRESH_RATE):
+    wfollow_right_smooth_until(isSecondDepthSensed, speed, time)
+
+
+@print_function_name
+def wfollow_right_smooth_until_not_second_depth(time=c.SAFETY_TIME, speed=0.3, refresh_rate=c.LFOLLOW_REFRESH_RATE):
+    wfollow_right_smooth_until(isSecondDepthNotSensed, speed, time)
+
+
+@print_function_name
+def wfollow_right_smooth_until_black_lfcliff(time=c.SAFETY_TIME, speed=1, refresh_rate=c.LFOLLOW_REFRESH_RATE):
+    wfollow_right_smooth_until(isLeftFrontOnBlack, speed, time)
+
+
+@print_function_name
+def wfollow_right_smooth_until_black_rfcliff(time=c.SAFETY_TIME, speed=1, refresh_rate=c.LFOLLOW_REFRESH_RATE):
+    wfollow_right_smooth_until(isRightFrontOnBlack, speed, time)
+
+
+@print_function_name
+def wfollow_right_smooth_until_black_lcliff(time=c.SAFETY_TIME, speed=1, refresh_rate=c.LFOLLOW_REFRESH_RATE):
+    wfollow_right_smooth_until(isLeftOnBlack, speed, time)
+
+
+@print_function_name
+def wfollow_right_smooth_until_black_rcliff(time=c.SAFETY_TIME, speed=1, refresh_rate=c.LFOLLOW_REFRESH_RATE):
+    wfollow_right_smooth_until(isRightOnBlack, speed, time)
+
+
+@print_function_name
+def wfollow_right_smooth_until_white_lfcliff(time=c.SAFETY_TIME, speed=1, refresh_rate=c.LFOLLOW_REFRESH_RATE):
+    wfollow_right_smooth_until(isLeftFrontOnWhite, speed, time)
+
+
+@print_function_name
+def wfollow_right_smooth_until_white_lfcliff(time=c.SAFETY_TIME, speed=1, refresh_rate=c.LFOLLOW_REFRESH_RATE):
+    wfollow_right_smooth_until(isRightFrontOnWhite, speed, time)
+
+
+@print_function_name
+def wfollow_right_smooth_until_white_lcliff(time=c.SAFETY_TIME, speed=1, refresh_rate=c.LFOLLOW_REFRESH_RATE):
+    wfollow_right_smooth_until(isLeftOnWhite, speed, time)
 
 #----------------------------------------------Align Functions-------------------------------------------
 
