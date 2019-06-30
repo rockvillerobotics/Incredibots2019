@@ -53,38 +53,29 @@ if IS_MAIN_BOT:
     #-------------------------------Servos------------------------
 
     # Servo Limits
-    MAX_SERVO_POS = 2047  # Cannot physically exceed 2047 or servo will break. Metal servos are more affected.
-    MIN_SERVO_POS = 0  # Cannot physically exceed 0 or servo will break. Metal servos are more affected.
-
-    ARM_MAX_POS = 1900
-    ARM_MIN_POS = 100
-
-    CLAW_MAX_POS = 1900
-    CLAW_MIN_POS = 100
-
-    WINDSHIELD_WIPER_MAX_POS = 1900
-    WINDSHIELD_WIPER_MIN_POS = 100
+    MAX_SERVO_POS = 1900  # Cannot physically exceed 2047 or servo will break. Metal servos are more affected.
+    MIN_SERVO_POS = 100  # Cannot physically exceed 0 or servo will break. Metal servos are more affected.
     SERVO_DELAY = 500  # Time needed to move a servo (need more testing to find a good value).
 
     # Arm Servo
-    ARM_SERVO = 2
+    ARM_SERVO = 3
     MAX_ARM_SERVO_POS = MAX_SERVO_POS
     MIN_ARM_SERVO_POS = MIN_SERVO_POS
-    ARM_UP_POS = 1762
-    ARM_DOWN_POS = 1096
+    ARM_UP_POS = 669
+    ARM_DOWN_POS = 1770
 
     # Wiper Servo
-    WINDSHIELD_WIPER_SERVO = 1
+    WINDSHIELD_WIPER_SERVO = 0
     WINDSHIELD_WIPER_LEFT_POS = 101
     WINDSHIELD_WIPER_RIGHT_POS = 1899
     WINDSHIELD_WIPER_MIDDLE_POS = 822
 
     # Claw Servo
-    CLAW_SERVO = 0
+    CLAW_SERVO = 1
     MAX_CLAW_SERVO_POS = MAX_SERVO_POS
     MIN_CLAW_SERVO_POS = MIN_SERVO_POS
-    CLAW_OPEN_POS = 417  # Claw fingers form a 180 degree line
-    CLAW_CLOSE_POS = 1298
+    CLAW_OPEN_POS = 458  # Claw fingers form a 180 degree line
+    CLAW_CLOSE_POS = 1024
     CLAW_TRUCK_CLOSE_POS = 1418
     CLAW_LESS_OPEN_POS = 928
     CLAW_CHECKING_POS = CLAW_CLOSE_POS
@@ -93,11 +84,9 @@ if IS_MAIN_BOT:
     MICRO_SERVO = 3
 
     # Starting Positions
-    STARTING_ARM_POS = ARM_DOWN_POS
-    STARTING_CLAW_POS = CLAW_LESS_OPEN_POS
+    STARTING_ARM_POS = ARM_UP_POS
+    STARTING_CLAW_POS = CLAW_CLOSE_POS
     STARTING_WINDSHIELD_WIPER_POS = WINDSHIELD_WIPER_RIGHT_POS
-
-    LIST_OF_ALL_SERVOS = [ARM_SERVO, CLAW_SERVO, WINDSHIELD_WIPER_SERVO, MICRO_SERVO]
 
     #-------------------------------Sensors------------------------
 
@@ -138,9 +127,11 @@ if IS_MAIN_BOT:
 
     # PID Lfollow Values
     MAX_TOPHAT_VALUE_RIGHT = 3200
-    MIN_TOPHAT_VALUE_RIGHT = 158
+    MIN_TOPHAT_VALUE_RIGHT = 128
     MAX_TOPHAT_VALUE_LEFT = 3200
-    MIN_TOPHAT_VALUE_LEFT = 158  # These values dont do anything unless calib command doesnt work right.
+    MIN_TOPHAT_VALUE_LEFT = 128  # These values dont do anything unless calib command doesnt work right.
+    MAX_TOPHAT_VALUE_THIRD = 3200
+    MIN_TOPHAT_VALUE_THIRD = 128
     KP = 10
     KI = 0.161
     KD = 1

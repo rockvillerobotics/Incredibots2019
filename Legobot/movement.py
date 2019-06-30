@@ -28,47 +28,51 @@ def base_backwards(speed_multiplier=1.0):
 # There is a lot of mumbo jumbo here to keep consistency with the rest of the code, but if you can understand this
 # you can understand every other command here.
 
-def drive(time=c.DEFAULT_DRIVE_TIME, should_stop=True, speed_multiplier=1.0):
+def drive(time=c.DEFAULT_DRIVE_TIME, stop=True, speed_multiplier=1.0):
     if time == 0:
-        should_stop = False
+        stop = False
+        time = c.SAFETY_TIME
         time = c.SAFETY_TIME
     base_drive(speed_multiplier)
     print "Drive forwards for %d ms" % time
     msleep(time)
-    if should_stop:
+    if stop == True:
         deactivate_motors()
 
 
-def turn_left(time=c.LEFT_TURN_TIME, should_stop=True, speed_multiplier=1.0):
+def turn_left(time=c.LEFT_TURN_TIME, stop=True, speed_multiplier=1.0):
     if time == 0:
-        should_stop = False
+        stop = False
+        time = c.SAFETY_TIME
         time = c.SAFETY_TIME
     base_turn_left(speed_multiplier)
     print "Turn left for %d ms" % time
     msleep(time)
-    if should_stop:
+    if stop == True:
         deactivate_motors()
 
 
-def turn_right(time=c.RIGHT_TURN_TIME, should_stop=True, speed_multiplier=1.0):
+def turn_right(time=c.RIGHT_TURN_TIME, stop=True, speed_multiplier=1.0):
     if time == 0:
-        should_stop = False
+        stop = False
+        time = c.SAFETY_TIME
         time = c.SAFETY_TIME
     base_turn_right(speed_multiplier)
     print "Turn right for %d ms" % time
     msleep(time)
-    if should_stop:
+    if stop == True:
         deactivate_motors()
 
 
-def backwards(time=c.DEFAULT_BACKWARDS_TIME, should_stop=True, speed_multiplier=1.0):
+def backwards(time=c.DEFAULT_BACKWARDS_TIME, stop=True, speed_multiplier=1.0):
     if time == 0:
-        should_stop = False
+        stop = False
+        time = c.SAFETY_TIME
         time = c.SAFETY_TIME
     base_backwards(speed_multiplier)
     print "Drive backwards for %d ms"%time
     msleep(time)
-    if should_stop:
+    if stop == True:
         deactivate_motors()
 
 
@@ -81,43 +85,47 @@ def stop_for(time=1000):  # Same as msleep command, but stops the wheels.
 # At one time, these were very useful commands. But, as time has gone on and techniques have been improved, they
 # have become obsolete. We keep them as an archaic reference to what things use to be. We're nostalgic like that.
 
-def drive_no_print(time=c.DEFAULT_DRIVE_TIME, should_stop=True, speed_multiplier=1.0):
+def drive_no_print(time=c.DEFAULT_DRIVE_TIME, stop=True, speed_multiplier=1.0):
     if time == 0:
-        should_stop = False
+        stop = False
+        time = c.SAFETY_TIME
         time = c.SAFETY_TIME
     base_drive(speed_multiplier)
     msleep(time)
-    if should_stop:
+    if stop == True:
         deactivate_motors()
 
 
-def turn_left_no_print(time=c.LEFT_TURN_TIME, should_stop=True, speed_multiplier=1.0):
+def turn_left_no_print(time=c.LEFT_TURN_TIME, stop=True, speed_multiplier=1.0):
     if time == 0:
-        should_stop = False
+        stop = False
+        time = c.SAFETY_TIME
         time = c.SAFETY_TIME
     base_turn_left(speed_multiplier)
     msleep(time)
-    if should_stop:
+    if stop == True:
         deactivate_motors()
 
 
-def turn_right_no_print(time=c.RIGHT_TURN_TIME, should_stop=True, speed_multiplier=1.0):
+def turn_right_no_print(time=c.RIGHT_TURN_TIME, stop=True, speed_multiplier=1.0):
     if time == 0:
-        should_stop = False
+        stop = False
+        time = c.SAFETY_TIME
         time = c.SAFETY_TIME
     base_turn_right(speed_multiplier)
     msleep(time)
-    if should_stop:
+    if stop == True:
         deactivate_motors()
 
 
-def backwards_no_print(time=c.DEFAULT_BACKWARDS_TIME, should_stop=True, speed_multiplier=1.0):
+def backwards_no_print(time=c.DEFAULT_BACKWARDS_TIME, stop=True, speed_multiplier=1.0):
     if time == 0:
-        should_stop = False
+        stop = False
+        time = c.SAFETY_TIME
         time = c.SAFETY_TIME
     base_backwards(speed_multiplier)
     msleep(time)
-    if should_stop:
+    if stop == True:
         deactivate_motors()
 
 #------------------------------- Basic Movement Commands -------------------------------
@@ -182,7 +190,7 @@ def av(motor_port, desired_velocity):
         desired_velocity = -1
     if motor_port == c.LEFT_MOTOR:
         intermediate_velocity = c.CURRENT_LM_POWER
-        if abs(desired_velocity - c.CURRENT_LM_POWER) > 600 or c.CURRENT_LM_POWER == 0:  # The robot only revs if it needs to.
+        if abs(desired_velocity - c.CURRENT_LM_POWER) > 600 or c.CURRENT_LM_POWER == 0:
             rev = True
     elif motor_port == c.RIGHT_MOTOR:
         intermediate_velocity = c.CURRENT_RM_POWER
@@ -213,26 +221,28 @@ def av(motor_port, desired_velocity):
 # "tic" is, but it's the universal wallaby unit of distance. Normally there are about 200 tics to an inch.
 
 @print_function_name_with_arrows
-def drive_tics(tics, should_stop=True):
+def drive_tics(tics, stop=True):
+    print "Starting drive_tics"
     cmpc(c.LEFT_MOTOR)
     cmpc(c.RIGHT_MOTOR)
     activate_motors(c.BASE_LM_POWER, c.BASE_RM_POWER)
     while gmpc(c.LEFT_MOTOR) < tics and gmpc(c.RIGHT_MOTOR) > -1 * tics:
         msleep(1)
         g.update_gyro()
-    if should_stop:
+    if stop == True:
         deactivate_motors()
 
 
 @print_function_name_with_arrows
-def backwards_tics(tics, should_stop=True):
+def backwards_tics(tics, stop=True):
+    print "Starting backwards_tics"
     cmpc(c.LEFT_MOTOR)
     cmpc(c.RIGHT_MOTOR)
     activate_motors(-1 * c.BASE_LM_POWER, -1 * c.BASE_RM_POWER)
     while gmpc(c.LEFT_MOTOR) > -1 * tics and gmpc(c.RIGHT_MOTOR) < tics:
         msleep(1)
         g.update_gyro()
-    if should_stop:
+    if stop == True:
         deactivate_motors()
 
 
@@ -240,76 +250,96 @@ def backwards_tics(tics, should_stop=True):
 # All these commands move the servo to a specified location at a specified speed.
 # The more tics per second, the faster the servo moves.
 
-def open_claw(tics=4, ms=1, servo_position=c.CLAW_OPEN_POS):
+def open_claw(tics=3, ms=1, servo_position=c.CLAW_OPEN_POS):
     print "Open claw to desired position: %d" % servo_position
-    move_claw(servo_position, tics, ms)  # Checking for faulty values must go before setting position.
+    if servo_position > c.MAX_SERVO_POS:
+        print "Invalid desired servo position\n"
+        exit(86)
+    if servo_position < c.MIN_SERVO_POS:
+        print "Invalid desired servo position\n"
+        exit(86)
+    move_servo(c.CLAW_SERVO, servo_position, tics, ms)  # Checking for faulty values must go before setting position.
     print "Claw opened to position: %d" % get_servo_position(c.CLAW_SERVO)
 
 
-def close_claw(tics=4, ms=1, servo_position=c.CLAW_CLOSE_POS):
+def close_claw(tics=3, ms=1, servo_position=c.CLAW_CLOSE_POS):
     print "Close claw to desired position: %d" % servo_position
-    move_claw(servo_position, tics, ms)
+    if servo_position > c.MAX_SERVO_POS:
+        print "Invalid desired servo position\n"
+        exit(86)
+    if servo_position < c.MIN_SERVO_POS:
+        print "Invalid desired servo position\n"
+        exit(86)
+    move_servo(c.CLAW_SERVO, servo_position, tics, ms)
     print "Claw closed to position: %d" % get_servo_position(c.CLAW_SERVO)
 
 
-def lift_arm(tics=4, ms=1, servo_position=c.ARM_UP_POS):
+def lift_arm(tics=3, ms=1, servo_position=c.ARM_UP_POS):
     print "Set arm servo to desired up position: %d" % servo_position
-    move_arm(servo_position, tics, ms)
+    if servo_position > c.MAX_SERVO_POS:
+        print "Invalid desired servo position\n"
+        exit(86)
+    if servo_position < c.MIN_SERVO_POS:
+        print "Invalid desired servo position\n"
+        exit(86)
+    move_servo(c.ARM_SERVO, servo_position, tics, ms)
     print "Arm reached up position: %d" % get_servo_position(c.ARM_SERVO)
 
 
-def lower_arm(tics=4, ms=1, servo_position=c.ARM_LOW_POS):
+def lower_arm(tics=3, ms=1, servo_position=c.BASE_TIME):
     print "Set arm servo to desired down position: %d" % servo_position
-    move_arm(servo_position, tics, ms)
+    if servo_position == c.BASE_TIME:
+        servo_position = c.ARM_DOWN_POS
+    if servo_position > c.MAX_SERVO_POS:
+        print "Invalid desired servo position\n"
+        exit(86)
+    if servo_position < c.MIN_SERVO_POS:
+        print "Invalid desired servo position\n"
+        exit(86)
+    move_servo(c.ARM_SERVO, servo_position, tics, ms)
     print "Arm reached down position: %d" % get_servo_position(c.ARM_SERVO)
 
 
-def swipe_left_windshield_wiper(tics=4, ms=1, servo_position=c.WINDSHIELD_WIPER_LEFT_POS):
+def swipe_left_windshield_wiper(tics=3, ms=1, servo_position=c.WINDSHIELD_WIPER_LEFT_POS):
     print "Set window wiper servo to desired up position: %d" % servo_position
-    move_windshield_wiper(servo_position, tics, ms)
+    if servo_position > c.MAX_SERVO_POS:
+        print "Invalid desired servo position\n"
+        exit(86)
+    if servo_position < c.MIN_SERVO_POS:
+        print "Invalid desired servo position\n"
+        exit(86)
+    move_servo(c.WINDSHIELD_WIPER_SERVO, servo_position, tics, ms)
     print "Wiper reached left position: %d" % get_servo_position(c.WINDSHIELD_WIPER_SERVO)
 
 
-def swipe_right_windshield_wiper(tics=4, ms=1, servo_position=c.WINDSHIELD_WIPER_RIGHT_POS):
+def swipe_right_windshield_wiper(tics=3, ms=1, servo_position=c.WINDSHIELD_WIPER_RIGHT_POS):
     print "Set window wiper servo to desired down position: %d" % servo_position
-    move_windshield_wiper(servo_position, tics, ms)
+    if servo_position > c.MAX_SERVO_POS:
+        print "Invalid desired servo position\n"
+        exit(86)
+    if servo_position < c.MIN_SERVO_POS:
+        print "Invalid desired servo position\n"
+        exit(86)
+    move_servo(c.WINDSHIELD_WIPER_SERVO, servo_position, tics, ms)
     print "Wiper reached right position: %d" % get_servo_position(c.WINDSHIELD_WIPER_SERVO)
 
 
-def move_claw(desired_claw_position=c.CLAW_OPEN_POS, claw_tics=4, claw_ms=1):
+def move_claw(desired_claw_position=c.CLAW_OPEN_POS, claw_tics=3, claw_ms=1):
     print "Moving Claw to " + str(desired_claw_position)
-    if desired_claw_position > c.CLAW_MAX_POS:
-        print "Desired servo position is too high! Autosetting to c.CLAW_MAX_POS"
-        desired_claw_position = c.CLAW_MAX_POS
-    if desired_claw_position < c.CLAW_MIN_POS:
-        print "Desired servo position is too high! Autosetting to c.CLAW_MIN_POS"
-        desired_claw_position = c.c.CLAW_MIN_POS
     move_servo(c.CLAW_SERVO, desired_claw_position, claw_tics, claw_ms)
 
 
-def move_arm(desired_arm_position = c.ARM_UP_POS, arm_tics=4, arm_ms=1):
+def move_arm(desired_arm_position = c.ARM_UP_POS, arm_tics=3, arm_ms=1):
     print "Moving Arm to " + str(desired_arm_position)
-    if desired_arm_position > c.ARM_MAX_POS:
-        print "Desired servo position is too high! Autosetting to c.ARM_MAX_POS"
-        desired_arm_position = c.ARM_MAX_POS
-    if desired_arm_position < c.ARM_MIN_POS:
-        print "Desired servo position is too high! Autosetting to c.ARM_MIN_POS"
-        desired_arm_position = c.c.ARM_MIN_POS
     move_servo(c.ARM_SERVO, desired_arm_position, arm_tics, arm_ms)
 
 
-def move_windshield_wiper(desired_windshield_wiper_position, windshield_wiper_tics=4, windshield_wiper_ms=1):
-    print "Moving Windshield Wiper to " + str(desired_windshield_wiper_position)
-    if desired_windshield_wiper_position > c.WINDSHIELD_WIPER_MAX_POS:
-        print "Desired servo position is too high! Autosetting to c.WINDSHIELD_WIPER_MAX_POS"
-        desired_windshield_wiper_position = c.WINDSHIELD_WIPER_MAX_POS
-    if desired_windshield_wiper_position < c.WINDSHIELD_WIPER_MIN_POS:
-        print "Desired servo position is too high! Autosetting to c.WINDSHIELD_WIPER_MIN_POS"
-        desired_windshield_wiper_position = c.c.WINDSHIELD_WIPER_MIN_POS
+def move_windshield_wiper(desired_windshield_wiper_position, windshield_wiper_tics=3, windshield_wiper_ms=1):
+    print "Moving Cube Arm to " + str(desired_windshield_wiper_position)
     move_servo(c.WINDSHIELD_WIPER_SERVO, desired_windshield_wiper_position, windshield_wiper_tics, windshield_wiper_ms)
 
 
-def move_servo(servo_port, desired_servo_position, tics=4, ms=1):
+def move_servo(servo_port, desired_servo_position, tics=3, ms=1):
 # Moves a servo to a given position from its current position. The servo and desired position must be specified.
 # Servo move speed = tics / ms
 # >18 tics is too high
@@ -329,21 +359,20 @@ def move_servo(servo_port, desired_servo_position, tics=4, ms=1):
         exit(86)
     while abs(get_servo_position(servo_port) - desired_servo_position) > 10:
         # Tolerance of +/- 10 included to account for servo value skipping
-        if (get_servo_position(servo_port) - desired_servo_position) >= 0:
+        if (get_servo_position(servo_port) - desired_servo_position) >= 1:
             set_servo_position(servo_port, intermediate_position)
             intermediate_position -= tics
-        elif (get_servo_position(servo_port) - desired_servo_position) < 0:
+        elif (get_servo_position(servo_port) - desired_servo_position) < 1:
             set_servo_position(servo_port, intermediate_position)
             intermediate_position += tics
-        elif (abs(get_servo_position(servo_port) - c.MAX_SERVO_POS) < 30)) or (abs(get_servo_position(servo_port) - c.MIN_SERVO_POS) < 30):
-            break
         else:
-            break
+           break
         msleep(ms)
+        g.update_gyro()
     set_servo_position(servo_port, desired_servo_position)  # Ensures actual desired value is reached. Should be a minor point change
     msleep(30)
-    print "Desired position reached. Current position is %d" % get_servo_position(servo_port)
-    print "Completed move_servo()\n"
+    print "Desired position reached. Curent position is %d" % get_servo_position(servo_port)
+    print "Completed servo_slow\n"
 
 
 #------------------------------- Bump Sensors -------------------------------
@@ -365,48 +394,52 @@ def base_bumpfollow_right():
 
 
 @print_function_name_with_arrows
-def bumpfollow_right_until_black_left(time=c.SAFETY_TIME, should_stop=True):
+def bumpfollow_right_until_black_left(time=c.SAFETY_TIME, stop=True):
     if time == 0:
-        should_stop = False
+        stop = False
+        time = c.SAFETY_TIME
         time = c.SAFETY_TIME
     sec = seconds() + time / 1000.0
     while seconds() < sec and s.isLeftOnWhite():
         base_bumpfollow_right()
-    if should_stop:
+    if stop == True:
         deactivate_motors()
 
 
 @print_function_name_with_arrows
-def bumpfollow_right_until_white_left(time=c.SAFETY_TIME, should_stop=True):
+def bumpfollow_right_until_white_left(time=c.SAFETY_TIME, stop=True):
     if time == 0:
-        should_stop = False
+        stop = False
+        time = c.SAFETY_TIME
         time = c.SAFETY_TIME
     sec = seconds() + time / 1000.0
     while seconds() < sec and s.isLeftOnBlack():
         base_bumpfollow_right()
-    if should_stop:
+    if stop == True:
         deactivate_motors()
 
 
 @print_function_name_with_arrows
-def bumpfollow_right_until_black_right(time=c.SAFETY_TIME, should_stop=True):
+def bumpfollow_right_until_black_right(time=c.SAFETY_TIME, stop=True):
     if time == 0:
-        should_stop = False
+        stop = False
+        time = c.SAFETY_TIME
         time = c.SAFETY_TIME
     sec = seconds() + time / 1000.0
     while seconds() < sec and s.isRightOnWhite():
         base_bumpfollow_right()
-    if should_stop:
+    if stop == True:
         deactivate_motors()
 
 
 @print_function_name_with_arrows
-def bumpfollow_right_until_white_right(time=c.SAFETY_TIME, should_stop=True):
+def bumpfollow_right_until_white_right(time=c.SAFETY_TIME, stop=True):
     if time == 0:
-        should_stop = False
+        stop = False
+        time = c.SAFETY_TIME
         time = c.SAFETY_TIME
     sec = seconds() + time / 1000.0
     while seconds() < sec and s.isRightOnBlack():
         base_bumpfollow_right()
-    if should_stop:
+    if stop == True:
         deactivate_motors()

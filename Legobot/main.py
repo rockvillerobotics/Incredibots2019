@@ -14,8 +14,8 @@ def main():
     print "Starting main()\n"
     u.setup()
     u.calibrate()
-    u.calibrate()
-    a.get_ambulance_and_blocks()
+    a.get_ambulance()
+    a.get_blocks()
     a.deliver_ambulance_and_blocks()
     a.get_firefighters()
     a.deliver_firefighters()
