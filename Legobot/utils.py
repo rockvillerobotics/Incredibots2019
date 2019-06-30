@@ -53,21 +53,15 @@ def setup():
     ao()
     msleep(100)
     g.calibrate_gyro()
-    for current_servo in c.LIST_OF_ALL_SERVOS:  # Uses "current_servo" in case "servo" itself is already used by libwallaby.
-        print(current_servo)  # Used for debugging
-        enable_servo(current_servo)
-    #enable_servo(c.CLAW_SERVO)
-    #enable_servo(c.ARM_SERVO)
-    #enable_servo(c.WINDSHIELD_WIPER_SERVO)
-
+    enable_servo(c.CLAW_SERVO)
+    enable_servo(c.ARM_SERVO)
     #c.STARTING_ARM_POS = get_servo_position(c.ARM_SERVO)
     #print "STARTING_ARM_POS now: " + str(c.ARM_DOWN_POS)
-    #m.move_claw(c.STARTING_CLAW_POS)
-    #m.move_arm(c.STARTING_ARM_POS)
-    m.move_windshield_wiper(c.STARTING_WINDSHIELD_WIPER_POS)
+    m.move_claw(c.STARTING_CLAW_POS)
+    m.move_arm(c.ARM_DOWN_POS)
     msleep(1000)
-    #print "Set claw to starting position of %d" % c.STARTING_CLAW_POS
-    #print "Set arm to starting position of %d" % c.STARTING_ARM_POS
+    print "Set claw to starting position of %d" % c.STARTING_CLAW_POS
+    print "Set arm to starting position of %d" % c.STARTING_ARM_POS
     #m.move_claw(c.CLAW_CHECKING_POS)
     #msleep(1000)
     #m.move_claw(c.STARTING_CLAW_POS)
@@ -99,16 +93,16 @@ def calibrate():
     total_left_speed = 0
     total_right_speed = 0
     total_seconds = 0
-    m.activate_motors(int(c.BASE_LM_POWER / 2), int(c.BASE_RM_POWER / 2))
-    while ((gmpc(c.LEFT_MOTOR) - gmpc(c.RIGHT_MOTOR)) / 2)  < calibrate_tics:
-        left_speed = (c.BASE_LM_POWER + error) / 2
-        right_speed = (c.BASE_RM_POWER + error) / 2
+    m.activate_motors(int(-c.BASE_LM_POWER / 2), int(-c.BASE_RM_POWER / 2))
+    while abs(gmpc(c.LEFT_MOTOR) - gmpc(c.RIGHT_MOTOR)) / 2  < calibrate_tics:
+        left_speed = (-c.BASE_LM_POWER + error) / 2
+        right_speed = (-c.BASE_RM_POWER + error) / 2
         total_left_speed += left_speed
         total_right_speed += right_speed
         i += 1
         m.activate_motors(left_speed, right_speed)
         msleep(10)
-        angle += (gyro_z() - g.bias) * 10
+        angle += (g.get_change_in_angle() - g.bias) * 10
         error = 0.034470956 * angle  # Positive error means veering left. Negative means veering right.
         if analog(c.RIGHT_TOPHAT) > max_sensor_value_right:
             max_sensor_value_right = analog(c.RIGHT_TOPHAT)
@@ -139,8 +133,8 @@ def calibrate():
     c.FOURTH_TOPHAT_BW = int(((max_sensor_value_fourth + min_sensor_value_fourth) / 2))
     avg_left_speed = total_left_speed / i
     avg_right_speed = total_right_speed / i
-    c.BASE_LM_POWER = int(avg_left_speed * 2)
-    c.BASE_RM_POWER = int(avg_right_speed * 2)
+    c.BASE_LM_POWER = int(-avg_left_speed * 2)
+    c.BASE_RM_POWER = int(-avg_right_speed * 2)
     c.FULL_LM_POWER = c.BASE_LM_POWER
     c.FULL_RM_POWER = c.BASE_RM_POWER
     c.HALF_LM_POWER = int(c.BASE_LM_POWER / 2)
@@ -165,10 +159,13 @@ def calibrate():
     c.MIN_TOPHAT_VALUE_RIGHT = min_sensor_value_right
     c.MAX_TOPHAT_VALUE_LEFT = max_sensor_value_left
     c.MIN_TOPHAT_VALUE_LEFT = min_sensor_value_left
+    c.MAX_TOPHAT_VALUE_THIRD = max_sensor_value_third
+    c.MIN_TOPHAT_VALUE_THIRD = min_sensor_value_third
     print "Finished Calibrating. Moving back into starting box...\n"
-    g.backwards_gyro_through_line_left()
-    s.align_close()
-    g.backwards_gyro(1200)
+    g.drive_gyro_through_line_left()
+    s.align_far()
+    m.move_arm(c.STARTING_ARM_POS)
+    g.drive_gyro(1200)
     msleep(25)
     ao()
     msleep(3000)
@@ -260,7 +257,7 @@ def set_speeds_to(left_speed, right_speed):
     c.BASE_RM_POWER = right_speed
 
 
-def change_speeds_by(speed_multiplier):
+def change_speeds_by_a_factor_of(speed_multiplier):
     c.BASE_LM_POWER = c.BASE_LM_POWER * speed_multiplier
     c.BASE_RM_POWER = c.BASE_RM_POWER * speed_multiplier
 
@@ -271,7 +268,7 @@ def normalize_speeds():
 
 #-------------------------------Debug------------------------
 
-def test_movement(exit=True):
+def test_movement(exit = True):
 # Used to see if movements and their defaults function as intended.
     print "Testing movement\n"
     m.turn_left()
