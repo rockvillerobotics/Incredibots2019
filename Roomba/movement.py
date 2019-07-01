@@ -144,6 +144,12 @@ def lift_arm(tics=3, ms=1, servo_position=c.ARM_UP_POS):
     move_arm(servo_position, tics, ms)
     print "Arm reached up position: %d" % get_servo_position(c.ARM_SERVO)
 
+
+def extend_wrist(tics=3, ms=1, servo_position=c.WRIST_OUT_POS):
+    print "Extend servo to: %d" % servo_position
+    move_wrist(servo_position, tics, ms)
+    print "Wrist reached up position: %d" % get_servo_position(c.WRIST_SERVO)
+
             
 def lower_arm(tics=3, ms=1, servo_position=c.ARM_DOWN_POS):
     print "Lowering arm to: %d" % servo_position
@@ -162,6 +168,12 @@ def lower_magnet_arm(tics=3, ms=1, servo_position=c.MAGNET_ARM_DOWN_POS):
     move_magnet_arm(servo_position, tics, ms)
     print "Arm reached down position: %d" % get_servo_position(c.ARM_SERVO)
 
+        
+def retract_wrist(tics=3, ms=1, servo_position=c.WRIST_IN_POS):
+    print "Retracting wrist to: %d" % servo_position
+    move_wrist(servo_position, tics, ms)
+    print "Wrist reached down position: %d" % get_servo_position(c.WRIST_SERVO)
+        
       
 def open_claw(tics=3, ms=1, servo_position=c.CLAW_OPEN_POS):
     print "Opening claw to: %d" % servo_position
@@ -195,6 +207,17 @@ def move_arm(desired_arm_position=c.ARM_DOWN_POS, arm_tics=3, arm_ms=1):
         print "Invalid desired servo position\n"
         exit(86)
     move_servo(c.ARM_SERVO, desired_arm_position, arm_tics, arm_ms)
+
+
+def move_wrist(desired_wrist_position=c.WRIST_IN_POS, wrist_tics=3, wrist_ms=1):
+    if desired_wrist_position > c.MAX_WRIST_POS:
+        print "Invalid desired servo position\n"
+        exit(86)
+    if desired_wrist_position < c.MIN_WRIST_POS:
+        print "Invalid desired servo position\n"
+        exit(86)
+    move_servo(c.WRIST_SERVO, desired_wrist_position, wrist_tics, wrist_ms)
+            
 
 
 def move_magnet_arm(desired_magnet_arm_position=c.MAGNET_ARM_DOWN_POS, magnet_arm_tics=3, magnet_arm_ms=1):
