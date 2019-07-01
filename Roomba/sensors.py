@@ -111,10 +111,16 @@ def isBumpSwitchNotPressed():
     return(digital(c.BUMP_SWITCH) == 0)
 
 def isItemInClaw():
-    return(analog(c.CLAW_TOPHAT) > c.CLAW_TOPHAT_BW)
+    if c.CLAW_TOPHAT_COUPLER_READING > c.CLAW_TOPHAT_BW:
+        return(analog(c.CLAW_TOPHAT) > c.CLAW_TOPHAT_BW)
+    else:
+        return(analog(c.CLAW_TOPHAT) < c.CLAW_TOPHAT_BW)
 
 def isNothingInClaw():
-    return(analog(c.CLAW_TOPHAT) < c.CLAW_TOPHAT_BW)
+    if c.CLAW_TOPHAT_COUPLER_READING > c.CLAW_TOPHAT_BW:
+        return(analog(c.CLAW_TOPHAT) < c.CLAW_TOPHAT_BW)
+    else:
+        return(analog(c.CLAW_TOPHAT) > c.CLAW_TOPHAT_BW)
 
 # ---------------------- Wait Until Condition Commands --------------------------------------------
 
@@ -892,6 +898,40 @@ def lfollow_rfcliff_until_lfcliff_senses_black_pid(time=c.SAFETY_TIME, bias=10):
         time = c.SAFETY_TIME_NO_STOP
     sec = seconds() + time / 1000.0
     while seconds() < sec and isLeftFrontOnWhite():
+        norm_reading = 100.0 * (get_create_rfcliff_amt() - c.MIN_SENSOR_VALUE_RFCLIFF) / (c.MAX_SENSOR_VALUE_RFCLIFF - c.MIN_SENSOR_VALUE_RFCLIFF)
+        error = target - norm_reading  # Positive error means black, negative means white.
+        derivative = error - last_error  # If rate of change is going negative, need to veer left
+        last_error = error
+        integral = 0.5 * integral + error
+        if error > 30 or error < -30:
+            kp = 1.56
+            ki = c.KI
+            kd = c.KD
+        elif error < 1 and error > -1:
+            kp = 0.67
+            ki = 0
+            kd = 0
+        else:
+            kp = c.KP
+            ki = c.KI
+            kd = c.KD
+        left_power = c.BASE_LM_POWER - ((kp * error) + (ki * integral) + (kd * derivative))
+        right_power = c.BASE_RM_POWER + ((kp * error) - (ki * integral) + (kd * derivative))  # Addition decreases power here
+        create_drive_direct(int(left_power), int(right_power))
+        c.CURRENT_LM_POWER = left_power
+        c.CURRENT_RM_POWER = right_power
+    if time != c.SAFETY_TIME_NO_STOP:
+        m.deactivate_motors()
+
+
+def lfollow_rfcliff_until_lfcliff_senses_white_pid(time=c.SAFETY_TIME, bias=10):
+    target = 100.0 * (c.RFCLIFF_BW - c.MIN_SENSOR_VALUE_RFCLIFF) / (c.MAX_SENSOR_VALUE_RFCLIFF - c.MIN_SENSOR_VALUE_RFCLIFF) + bias
+    last_error = 0
+    integral = 0
+    if time == 0:
+        time = c.SAFETY_TIME_NO_STOP
+    sec = seconds() + time / 1000.0
+    while seconds() < sec and isLeftFrontOnBlack():
         norm_reading = 100.0 * (get_create_rfcliff_amt() - c.MIN_SENSOR_VALUE_RFCLIFF) / (c.MAX_SENSOR_VALUE_RFCLIFF - c.MIN_SENSOR_VALUE_RFCLIFF)
         error = target - norm_reading  # Positive error means black, negative means white.
         derivative = error - last_error  # If rate of change is going negative, need to veer left

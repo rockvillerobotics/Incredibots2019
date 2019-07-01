@@ -41,6 +41,9 @@ def base_veer_left(veer_multiplier=1, speed_multiplier=1.0):
 def base_veer_right(veer_multiplier=1, speed_multiplier=1.0):
     activate_motors(int(speed_multiplier * c.BASE_LM_POWER), int(speed_multiplier * veer_multiplier * 0.7 * c.BASE_RM_POWER))
 
+def base_veer(veer_multiplier_left=1, veer_multiplier_right=1, speed_multiplier=1.0):
+    activate_motors(int(speed_multiplier * veer_multiplier_left * c.BASE_LM_POWER), int(speed_multiplier * veer_multiplier_right * c.BASE_RM_POWER))
+
 #-----------------------------Basic Movement-------------------------
 
 def activate_motors(left_motor_power=c.BASE_POWER, right_motor_power=c.BASE_POWER):
@@ -138,49 +141,49 @@ def av(motor_port, motor_power):
 
 def lift_arm(tics=3, ms=1, servo_position=c.ARM_UP_POS):
     print "Lifting servo to: %d" % servo_position
-    move_servo(c.ARM_SERVO, servo_position, tics, ms)
+    move_arm(servo_position, tics, ms)
     print "Arm reached up position: %d" % get_servo_position(c.ARM_SERVO)
 
             
 def lower_arm(tics=3, ms=1, servo_position=c.ARM_DOWN_POS):
     print "Lowering arm to: %d" % servo_position
-    move_servo(c.ARM_SERVO, servo_position, tics, ms)
+    move_arm(servo_position, tics, ms)
     print "Arm reached down position: %d" % get_servo_position(c.ARM_SERVO)
             
 
 def lift_magnet_arm(tics=3, ms=1, servo_position=c.MAGNET_ARM_UP_POS):
     print "Lifting magnet arm to: %d" % servo_position
-    move_servo(c.ARM_SERVO, servo_position, tics, ms)
+    move_magnet_arm(servo_position, tics, ms)
     print "Arm reached up position: %d" % get_servo_position(c.ARM_SERVO)
 
             
 def lower_magnet_arm(tics=3, ms=1, servo_position=c.MAGNET_ARM_DOWN_POS):
     print "Lowering magnet arm to: %d" % servo_position
-    move_servo(c.ARM_SERVO, servo_position, tics, ms)
+    move_magnet_arm(servo_position, tics, ms)
     print "Arm reached down position: %d" % get_servo_position(c.ARM_SERVO)
 
       
 def open_claw(tics=3, ms=1, servo_position=c.CLAW_OPEN_POS):
     print "Opening claw to: %d" % servo_position
-    move_servo(c.CLAW_SERVO, servo_position, tics, ms)
+    move_claw(servo_position, tics, ms)
     print "Claw reached close position: %d" % get_servo_position(c.CLAW_SERVO)
 
 
 def close_claw(tics=3, ms=1, servo_position=c.CLAW_CLOSE_POS):
     print "Closing claw to: %d" % servo_position
-    move_servo(c.CLAW_SERVO, servo_position, tics, ms)
+    move_claw(servo_position, tics, ms)
     print "Claw reached close position: %d" % get_servo_position(c.CLAW_SERVO)
 
 
 def lift_micro(tics=3, ms=1, servo_position=c.MICRO_UP_POS):
     print "Lifting micro to: %d" % servo_position
-    move_servo(c.MICRO_SERVO, servo_position, tics, ms)
+    move_micro(servo_position, tics, ms)
     print "Micro reached up position: %d" % get_servo_position(c.MICRO_SERVO)
 
             
 def retract_micro(tics=3, ms=1, servo_position=c.MICRO_RETRACTED_POS):
     print "Retracting micro to: %d" % servo_position
-    move_servo(c.MICRO_SERVO, servo_position, tics, ms)
+    move_micro(servo_position, tics, ms)
     print "Micro reached down position: %d" % get_servo_position(c.MICRO_SERVO)
 
 
@@ -260,6 +263,57 @@ def move_servo(servo_port, desired_servo_position, tics=3, ms=1):
     print "Completed move_servo()\n"
 
 
+def move_two_servos(servo_port, desired_servo_position, second_servo_port, second_desired_servo_position, tics=3, ms=1):
+    # Moves a servo slowly to a given position from its current position. The servo and desire
+    # Servo move speed = tics / msd position must be specified
+    # >18 tics is too high
+    intermediate_position = get_servo_position(servo_port)
+    second_intermediate_position = get_servo_position(second_servo_port)
+    print "Starting move_two_servos()"
+    print "Servo current position = %d" % get_servo_position(servo_port)
+    print "Servo desired position = %d" % desired_servo_position
+    print "Second servo current position = %d" % get_servo_position(servo_port)
+    print "Second servo desired position = %d" % desired_servo_position
+    if desired_servo_position > c.MAX_SERVO_LIMIT:
+        print "Invalid desired servo position. Its too high.\n"
+        exit(86)
+    if desired_servo_position < c.MIN_SERVO_LIMIT:
+        print "Invalid desired servo position. Its too low.\n"
+        exit(86)
+    print "Speed = " + str(tics) + "/" + str(ms) + " tics per ms"
+    if tics > 18:
+        print "Tic value is too high\n"
+        exit(86)
+    while abs(get_servo_position(servo_port) - desired_servo_position) > 10:
+        # Tolerance of +/- 10 included to account for servo value skipping
+        if get_servo_position(servo_port) - desired_servo_position > 0:
+            set_servo_position(servo_port, intermediate_position)
+            intermediate_position -= tics
+        elif get_servo_position(servo_port) - desired_servo_position <= 0:
+            set_servo_position(servo_port, intermediate_position)
+            intermediate_position += tics
+        elif abs(get_servo_position(servo_port) - c.MAX_SERVO_LIMIT) < 30 or abs(get_servo_position(servo_port) - c.MIN_SERVO_LIMIT) < 30:
+            break
+        else:
+            break
+        if get_servo_position(second_servo_port) - desired_second_servo_position > 0:
+            set_servo_position(second_servo_port, second_intermediate_position)
+            second_intermediate_position -= tics
+        elif get_servo_position(second_servo_port) - desired_second_servo_position <= 0:
+            set_servo_position(second_servo_port, second_intermediate_position)
+            second_intermediate_position += tics
+        elif abs(get_servo_position(second_servo_port) - c.MAX_SERVO_LIMIT) < 30 or abs(get_servo_position(second_servo_port) - c.MIN_SERVO_LIMIT) < 30:
+            break
+        else:
+            break
+        msleep(ms)
+    set_servo_position(servo_port, desired_servo_position)  # Ensures actual desired value is reached. Should be a minor point change
+    set_servo_position(second_servo_port, second_desired_servo_position)  # Ensures actual desired value is reached. Should be a minor point change
+    msleep(30)
+    print "Desired position reached. Curent position is %d" % get_servo_position(servo_port)
+    print "Completed move_servo()\n"
+                
+                
 @print_function_name
 def extend_arm():
     mav(c.ARM_MOTOR, c.BASE_ARM_MOTOR_POWER)

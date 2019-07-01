@@ -510,7 +510,7 @@ def backwards_gyro_until_item_is_in_claw(time=c.SAFETY_TIME):
     if time == 0:
         time = c.SAFETY_TIME_NO_STOP
     sec = seconds() + time / 1000.0
-    while seconds() < sec and s.isItemInClaw():
+    while seconds() < sec and s.isNothingInClaw():
         left_speed = -c.BASE_LM_POWER + error
         right_speed = -c.BASE_RM_POWER - error
         m.activate_motors(left_speed, right_speed)

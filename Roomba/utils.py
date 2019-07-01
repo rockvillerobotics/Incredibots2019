@@ -52,6 +52,7 @@ def calibrate():
     total_left_speed = 0
     total_right_speed = 0
     run_throughs = 0
+    total_tophat_reading = 0
     sec = seconds() + 3
     print "Running calibrate()"
     m.activate_motors(int(c.BASE_LM_POWER / 2), int(c.BASE_RM_POWER / 2))
@@ -72,6 +73,7 @@ def calibrate():
             c.MAX_SENSOR_VALUE_RFCLIFF = get_create_rfcliff_amt()
         if get_create_rfcliff_amt() < c.MIN_SENSOR_VALUE_RFCLIFF:
             c.MIN_SENSOR_VALUE_RFCLIFF = get_create_rfcliff_amt()
+        total_tophat_reading += analog(c.CLAW_TOPHAT)
         left_speed = int(c.BASE_LM_POWER / 2) + error
         right_speed = int(c.BASE_RM_POWER / 2) - error
         m.activate_motors(left_speed, right_speed)
@@ -99,6 +101,16 @@ def calibrate():
     print "BASE_LM_POWER: " + str(c.BASE_LM_POWER)
     print "BASE_RM_POWER: " + str(c.BASE_RM_POWER)
     msleep(100)
+    c.CLAW_TOPHAT_NOTHING_READING = total_tophat_reading / run_throughs
+    print "\nPut coupler in claw and press the right button..."
+    s.wait_until(isRightButtonPressed)
+    c.CLAW_TOPHAT_COUPLER_READING = analog(c.CLAW_TOPHAT)
+    c.CLAW_TOPHAT_BW = (c.CLAW_TOPHAT_COUPLER_READING + c.CLAW_TOPHAT_NOTHING_READING) / 2
+    print "c.CLAW_TOPHAT_BW: " + str(c.CLAW_TOPHAT_BW)
+    if c.CLAW_TOPHAT_COUPLER_READING > c.CLAW_TOPHAT_NOTHING_READING:
+        print "Coupler reading is higher."
+    else:
+        print "Nothing reading is higher."
     s.backwards_until_black_cliffs()
     s.align_far_cliffs()
     s.backwards_until_black_lfcliff()
@@ -110,8 +122,7 @@ def calibrate():
     ao()
     # DON'T DELETE THESE NEXT 4 LINES. They are purposeful. It avoids the roomba going into sleep mode after the calibration and not starting right.
     create_disconnect()
-    msleep(4000)
-    #wait_for_light(c.LIGHT_SENSOR)
+    wait_for_light(c.LIGHT_SENSOR)
     create_connect()
     shut_down_in(120)  # URGENT: PUT BACK IN BEFORE COMPETITION
 
