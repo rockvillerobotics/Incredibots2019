@@ -65,11 +65,12 @@ def deliver_left_coupler():
     s.align_on_wall_right()
     s.wfollow_right_smooth_until_black_lfcliff(0)
     s.wfollow_right_smooth_until_black_rcliff()
+    g.turn_left_gyro()
     # Next to T
     s.turn_right_until_lfcliff_senses_black(0)
     s.turn_right_until_lfcliff_senses_white(0)
     g.turn_right_gyro(60)
-    # The Roomba starts delivering the left coupler.
+    #The Roomba starts delivering the left coupler.
     put_coupler_on_t()
     lower_coupler_into_t()
     push_in_coupler()
@@ -106,7 +107,7 @@ def get_right_coupler():
     #turns left and drives to middle black line to align
     g.forwards_gyro_until_white_lcliff(0)
     g.forwards_gyro_through_line_lcliff()
-    # Needs to turn around to grab coupler
+    #Needs to turn around to grab coupler
     s.turn_left_until_rfcliff_senses_black(0)
     g.turn_left_gyro(75)
     m.lower_arm()
@@ -137,15 +138,17 @@ def do_magnets():
     s.align_on_wall_right()
     s.wfollow_right_smooth_until_black_rcliff()
     g.backwards_gyro_until_white_rcliff(0)
-    g.backwards_gyro(100)
+    g.backwards_gyro(50)
     m.lower_magnet_arm()
     m.retract_micro()
     g.backwards_gyro_until_black_lfcliff()
     s.align_far_fcliffs()
-    g.backwards_gyro(50)
+    g.backwards_gyro(60)
     m.lift_micro()
     m.lift_magnet_arm()
-    g.backwards_gyro(1600)
+    g.backwards_gyro(1500)
+    msleep(1000)
+    g.forwards_gyro(50)
     m.lower_magnet_arm()
     m.retract_micro()
     
@@ -173,21 +176,29 @@ def pick_up_coupler():
 @print_function_name
 def put_coupler_on_t():
     s.wfollow_left_until_second_depth(0, speed=1.0)
-    s.wfollow_left(800)
+    s.wfollow_left(1000)
     s.wfollow_left_smooth_slowly_until_second_depth(0)
+    msleep(300)
     s.wfollow_left_smooth_slowly_until_not_second_depth()
     turn_right_until_depth()
-    m.base_forwards(0.4)
-    msleep(85)
+    #m.base_forwards(0.4)
+    #msleep(50)
     m.deactivate_motors()
     m.move_arm(c.ARM_JUST_BARELY_ON_T_POS)
+    msleep(500)
             
 
 @print_function_name           
 def lower_coupler_into_t():
-    m.base_forwards(0.905)
-    m.move_arm(c.ARM_JUST_BELOW_T_POS, 6, 1)
+    u.change_speeds_by(0.5)
+    m.move_servo_while_activating_motors(c.ARM_SERVO, c.ARM_DELIVERY_POS, tics=8, ms=1)
+    msleep(200)
     m.deactivate_motors()
+    u.normalize_speeds()
+    #m.base_forwards(0.905)
+    #m.move_arm(c.ARM_JUST_BELOW_T_POS, 6, 1)
+    #m.deactivate_motors()
+    m.move_arm(c.ARM_JUST_BELOW_T_POS)
     msleep(1000)
 
 
@@ -201,7 +212,7 @@ def push_in_coupler():
     m.deactivate_motors()
     g.backwards_gyro(200)
     u.reset_roomba(2000)
-    m.move_arm(101)
+    m.move_arm(51)
 
 
 @print_function_name

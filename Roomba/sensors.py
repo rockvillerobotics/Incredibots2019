@@ -1520,6 +1520,21 @@ def base_wfollow_right_smooth(speed):
     u.normalize_speeds()
     u.change_speeds_by(speed)
     msleep(c.LFOLLOW_REFRESH_RATE)
+            
+
+def base_wfollow_right_backwards_smooth():
+    u.change_speeds_by(-1)
+    if isRoombaBumped():
+        if c.FIRST_BUMP == True:
+            m.deactivate_motors()
+        m.base_veer_right(0.95)
+        c.FIRST_BUMP = False
+    else:
+
+        m.base_veer_left(0.65)
+        c.FIRST_BUMP = True
+    u.normalize_speeds()
+    msleep(c.LFOLLOW_REFRESH_RATE)
 
 
 def base_wfollow_left_slowly_smooth(speed=0.3):
@@ -1970,7 +1985,19 @@ def wfollow_right_smooth_until(boolean, speed, time=c.SAFETY_TIME, refresh_rate=
     if time != c.SAFETY_TIME_NO_STOP:
         m.deactivate_motors()
 
-
+            
+@print_function_name
+def wfollow_right_backwards_smooth_until(boolean, speed, time=c.SAFETY_TIME, refresh_rate=c.LFOLLOW_REFRESH_RATE):
+    if time == 0:
+        time = c.SAFETY_TIME_NO_STOP
+    sec = seconds() + time / 1000.0
+    while seconds() < sec and not(boolean()):
+        base_wfollow_right_backwards_smooth()
+    u.normalize_speeds()
+    if time != c.SAFETY_TIME_NO_STOP:
+        m.deactivate_motors()        
+      
+            
 @print_function_name
 def wfollow_right_smooth_until_second_depth(time=c.SAFETY_TIME, speed=0.3, refresh_rate=c.LFOLLOW_REFRESH_RATE):
     wfollow_right_smooth_until(isSecondDepthSensed, speed, time)
@@ -2014,7 +2041,16 @@ def wfollow_right_smooth_until_white_lfcliff(time=c.SAFETY_TIME, speed=1, refres
 @print_function_name
 def wfollow_right_smooth_until_white_lcliff(time=c.SAFETY_TIME, speed=1, refresh_rate=c.LFOLLOW_REFRESH_RATE):
     wfollow_right_smooth_until(isLeftOnWhite, speed, time)
+        
+        
+@print_function_name
+def wfollow_right_backwards_smooth_until_black_lcliff(time=c.SAFETY_TIME, speed=1, refresh_rate=c.LFOLLOW_REFRESH_RATE):
+    wfollow_right_backwards_smooth_until(isLeftOnBlack, speed, time)
 
+        
+@print_function_name
+def wfollow_right_backwards_smooth_until_white_lcliff(time=c.SAFETY_TIME, speed=1, refresh_rate=c.LFOLLOW_REFRESH_RATE):
+    wfollow_right_backwards_smooth_until(isLeftOnWhite, speed, time)
 #----------------------------------------------Align Functions-------------------------------------------
 
 @print_function_name_only_at_beginning

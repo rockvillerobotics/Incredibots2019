@@ -277,10 +277,19 @@ def move_two_servos(servo_port, desired_servo_position, second_servo_port, secon
     if desired_servo_position > c.MAX_SERVO_LIMIT:
         print "Invalid desired servo position. Its too high.\n"
         exit(86)
-    if desired_servo_position < c.MIN_SERVO_LIMIT:
+    elif desired_servo_position < c.MIN_SERVO_LIMIT:
+        print "Invalid desired servo position. Its too low.\n"
+        exit(86)
+    if second_desired_servo_position > c.MAX_SERVO_LIMIT:
+        print "Invalid desired servo position. Its too high.\n"
+        exit(86)
+    elif second_desired_servo_position < c.MIN_SERVO_LIMIT:
         print "Invalid desired servo position. Its too low.\n"
         exit(86)
     print "Speed = " + str(tics) + "/" + str(ms) + " tics per ms"
+    steps = abs(desired_servo_position - intermediate_position) / tics
+    second_servo_tics = abs(second_desired_servo_position - second_intermediate_position) / steps
+    print "Second servo speed = " + str(second_servo_tics) + "/" + str(ms) + " tics per ms"
     if tics > 18:
         print "Tic value is too high\n"
         exit(86)
@@ -297,11 +306,11 @@ def move_two_servos(servo_port, desired_servo_position, second_servo_port, secon
         else:
             break
         if get_servo_position(second_servo_port) - desired_second_servo_position > 0:
-            set_servo_position(second_servo_port, second_intermediate_position)
-            second_intermediate_position -= tics
+            set_servo_position(second_servo_port, int(second_intermediate_position))
+            second_intermediate_position -= second_servo_tics
         elif get_servo_position(second_servo_port) - desired_second_servo_position <= 0:
-            set_servo_position(second_servo_port, second_intermediate_position)
-            second_intermediate_position += tics
+            set_servo_position(second_servo_port, int(second_intermediate_position))
+            second_intermediate_position += second_servo_tics
         elif abs(get_servo_position(second_servo_port) - c.MAX_SERVO_LIMIT) < 30 or abs(get_servo_position(second_servo_port) - c.MIN_SERVO_LIMIT) < 30:
             break
         else:
@@ -333,3 +342,75 @@ def retract_arm():
     msleep(25)
     ao()
             
+
+def move_servo_while_activating_motors(servo_port, desired_servo_position, tics=3, ms=1, left_motor_power=c.BASE_POWER, right_motor_power=c.BASE_POWER):
+# Moves a servo slowly to a given position from its current position. The servo and desire
+# Servo move speed = tics / msd position must be specified
+# >18 tics is too high
+    intermediate_position = get_servo_position(servo_port)
+    if left_motor_power == c.BASE_POWER:
+        left_motor_power = c.BASE_LM_POWER
+    if right_motor_power == c.BASE_POWER:
+        right_motor_power = c.BASE_RM_POWER
+    if left_motor_power > 490:
+        left_motor_power = 490
+    elif left_motor_power < -490:
+        left_motor_power = -490
+    elif left_motor_power < 1 and left_motor_power >= 0:
+        left_motor_power = 1
+    elif left_motor_power > -1 and left_motor_power < 0:
+        left_motor_power = -1
+    if right_motor_power < -490:
+        right_motor_power = -490
+    elif right_motor_power > 490:
+        right_motor_power = 490
+    elif right_motor_power < 1 and right_motor_power >= 0:
+        right_motor_power = 1
+    elif right_motor_power > -1 and right_motor_power < 0:
+        right_motor_power = -1
+    print "Starting move_servo()"
+    print "Servo current position = %d" % get_servo_position(servo_port)
+    print "Servo desired position = %d" % desired_servo_position
+    if desired_servo_position > c.MAX_SERVO_LIMIT:
+        print "Invalid desired servo position. Its too high.\n"
+        exit(86)
+    if desired_servo_position < c.MIN_SERVO_LIMIT:
+        print "Invalid desired servo position. Its too low.\n"
+        exit(86)
+    print "Speed = " + str(tics) + "/" + str(ms) + " tics per ms"
+    if tics > 18:
+        print "Tic value is too high\n"
+        exit(86)
+    left_velocity_change = (left_motor_power - c.CURRENT_LM_POWER) / 30
+    right_velocity_change = (right_motor_power - c.CURRENT_RM_POWER) / 30
+    while abs(get_servo_position(servo_port) - desired_servo_position) > 10:
+        # Tolerance of +/- 10 included to account for servo value skipping
+        if get_servo_position(servo_port) - desired_servo_position > 0:
+            set_servo_position(servo_port, intermediate_position)
+            intermediate_position -= tics
+        elif get_servo_position(servo_port) - desired_servo_position <= 0:
+            set_servo_position(servo_port, intermediate_position)
+            intermediate_position += tics
+        elif abs(get_servo_position(servo_port) - c.MAX_SERVO_LIMIT) < 30 or abs(get_servo_position(servo_port) - c.MIN_SERVO_LIMIT) < 30:
+            break
+        else:
+            break
+        if abs(c.CURRENT_LM_POWER - left_motor_power) > 10 and abs(c.CURRENT_RM_POWER - right_motor_power) > 10:
+            create_drive_direct(int(c.CURRENT_LM_POWER), int(c.CURRENT_RM_POWER))
+            c.CURRENT_LM_POWER += left_velocity_change
+            c.CURRENT_RM_POWER += right_velocity_change
+            msleep(1)
+        elif c.CURRENT_LM_POWER != left_motor_power or c.CURRENT_RM_POWER != right_motor_power:
+            c.CURRENT_LM_POWER = left_motor_power
+            c.CURRENT_RM_POWER = right_motor_power
+            create_drive_direct(int(c.CURRENT_LM_POWER), int(c.CURRENT_RM_POWER))
+        msleep(ms)
+    if c.CURRENT_LM_POWER != left_motor_power or c.CURRENT_RM_POWER != right_motor_power:
+        c.CURRENT_LM_POWER = left_motor_power
+        c.CURRENT_RM_POWER = right_motor_power
+        create_drive_direct(int(c.CURRENT_LM_POWER), int(c.CURRENT_RM_POWER))
+    set_servo_position(servo_port, desired_servo_position)  # Ensures actual desired value is reached. Should be a minor point change
+    msleep(30)
+    print "Motors revved to desired speed."
+    print "Desired position reached. Curent position is %d" % get_servo_position(servo_port)
+    print "Completed move_servo()\n"
