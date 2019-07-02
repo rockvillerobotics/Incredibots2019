@@ -65,19 +65,12 @@ def deliver_left_coupler():
     s.align_on_wall_right()
     s.wfollow_right_smooth_until_black_lfcliff(0)
     s.wfollow_right_smooth_until_black_rcliff()
-    g.turn_left_gyro()
     # Next to T
     s.turn_right_until_lfcliff_senses_black(0)
     s.turn_right_until_lfcliff_senses_white(0)
     g.turn_right_gyro(60)
     #The Roomba starts delivering the left coupler.
-    put_coupler_on_t()
-    lower_coupler_into_t()
-    push_in_coupler()
-    m.move_arm(101, 5, 1)
-    g.turn_right_gyro()
-    m.move_arm(690, 3, 1)
-    g.turn_left_gyro(50)
+    
 
 
 @print_function_name
@@ -181,38 +174,17 @@ def put_coupler_on_t():
     msleep(300)
     s.wfollow_left_smooth_slowly_until_not_second_depth()
     turn_right_until_depth()
-    #m.base_forwards(0.4)
-    #msleep(50)
-    m.deactivate_motors()
-    m.move_arm(c.ARM_JUST_BARELY_ON_T_POS)
-    msleep(500)
+    
             
 
 @print_function_name           
 def lower_coupler_into_t():
-    u.change_speeds_by(0.5)
-    m.move_servo_while_activating_motors(c.ARM_SERVO, c.ARM_DELIVERY_POS, tics=8, ms=1)
-    msleep(200)
-    m.deactivate_motors()
-    u.normalize_speeds()
-    #m.base_forwards(0.905)
-    #m.move_arm(c.ARM_JUST_BELOW_T_POS, 6, 1)
-    #m.deactivate_motors()
-    m.move_arm(c.ARM_JUST_BELOW_T_POS)
-    msleep(1000)
+    g.forwards_gyro(100)
 
 
 @print_function_name           
 def push_in_coupler():
-    u.reset_roomba()
-    m.base_veer(veer_multiplier_left = -1.0, veer_multiplier_right = -0.3)
-    msleep(500)
-    m.lower_arm(17, 1, c.ARM_DELIVERY_POS)
-    #dance_while_lowering_arm(c.ARM_DELIVERY_POS)
-    m.deactivate_motors()
-    g.backwards_gyro(200)
-    u.reset_roomba(2000)
-    m.move_arm(51)
+    g.forwards_gyro(100)
 
 
 @print_function_name
@@ -307,10 +279,4 @@ def turn_left_until_not_depth(should_stop=True, depth_cf=c.DEPTH_CF):
 
 @print_function_name
 def test_coupler_delivery():
-    put_coupler_on_t()
-    lower_coupler_into_t()
-    push_in_coupler()
-    msleep(1000)
-    g.turn_right_gyro()
-    m.move_arm(690, 3, 1)
-    g.turn_left_gyro(50)
+    g.forwards_gyro(100)
