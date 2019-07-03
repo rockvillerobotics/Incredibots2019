@@ -1490,8 +1490,8 @@ def base_wfollow_right():
 
 def base_wfollow_left_smooth(speed):
     if isRoombaBumped():
-        if c.FIRST_BUMP == True:
-            m.deactivate_motors()
+        #if c.FIRST_BUMP == True:
+            #m.deactivate_motors()
         if speed == 1:
             c.BASE_LM_POWER = c.FULL_LM_POWER * 1.3
         m.base_veer_right(0.9)
@@ -1507,8 +1507,8 @@ def base_wfollow_left_smooth(speed):
 
 def base_wfollow_right_smooth(speed):
     if isRoombaBumped():
-        if c.FIRST_BUMP == True:
-            m.deactivate_motors()
+        #if c.FIRST_BUMP == True:
+            #m.deactivate_motors()
         if speed == 1:
             c.BASE_LM_POWER = c.FULL_LM_POWER * 1.3
         m.base_veer_left(0.9)
@@ -1525,8 +1525,8 @@ def base_wfollow_right_smooth(speed):
 def base_wfollow_right_backwards_smooth():
     u.change_speeds_by(-1)
     if isRoombaBumped():
-        if c.FIRST_BUMP == True:
-            m.deactivate_motors()
+        #if c.FIRST_BUMP == True:
+            #m.deactivate_motors()
         m.base_veer_right(0.95)
         c.FIRST_BUMP = False
     else:
@@ -1913,7 +1913,7 @@ def wfollow_left_smooth_until(boolean, speed, time=c.SAFETY_TIME, refresh_rate=c
 
 
 @print_function_name
-def wfollow_left_smooth_slowly_until(boolean, speed, time=c.SAFETY_TIME, refresh_rate=c.LFOLLOW_REFRESH_RATE):
+def wfollow_left_smooth_slowly_until(boolean, speed=0.3, time=c.SAFETY_TIME, refresh_rate=c.LFOLLOW_REFRESH_RATE):
     if time == 0:
         time = c.SAFETY_TIME_NO_STOP
     sec = seconds() + time / 1000.0
@@ -1923,7 +1923,19 @@ def wfollow_left_smooth_slowly_until(boolean, speed, time=c.SAFETY_TIME, refresh
     if time != c.SAFETY_TIME_NO_STOP:
         m.deactivate_motors()
 
-
+            
+@print_function_name
+def wfollow_left_smooth_slowly(time=c.SAFETY_TIME, speed=0.3, refresh_rate=c.LFOLLOW_REFRESH_RATE):
+    if time == 0:
+        time = c.SAFETY_TIME_NO_STOP
+    sec = seconds() + time / 1000.0
+    while seconds() < sec:
+        base_wfollow_left_slowly_smooth(speed)
+    u.normalize_speeds()
+    if time != c.SAFETY_TIME_NO_STOP:
+        m.deactivate_motors()
+            
+            
 @print_function_name
 def wfollow_left_smooth_slowly_until_second_depth(time=c.SAFETY_TIME, speed=0.3, refresh_rate=c.LFOLLOW_REFRESH_RATE):
     wfollow_left_smooth_slowly_until(isSecondDepthSensed, speed, time)

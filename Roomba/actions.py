@@ -43,8 +43,9 @@ def get_left_coupler():
     s.turn_right_until_rfcliff_senses_black()
     s.lfollow_rfcliff_until_lfcliff_senses_black_pid()
     m.lower_arm()
-    g.turn_left_gyro(20)
-    g.backwards_gyro_until_item_is_in_claw(1000)
+    g.turn_left_gyro(18)
+    g.backwards_gyro_until_item_is_in_claw(1100)
+    g.backwards_gyro(100)
     pick_up_coupler()
 
 
@@ -56,6 +57,8 @@ def deliver_left_coupler():
     g.backwards_gyro(10)
     # Turns left and wall follows until middle right box
     g.turn_left_gyro()
+    m.move_wrist(853, 3, 1)
+    m.move_arm(105, 3, 1)
     s.wfollow_right_until_black_left(0)
     s.wfollow_right_until_white_left_front(0)
     s.wfollow_right_until_white_left(0)
@@ -66,11 +69,11 @@ def deliver_left_coupler():
     s.wfollow_right_smooth_until_black_lfcliff(0)
     s.wfollow_right_smooth_until_black_rcliff()
     # Next to T
-    s.turn_right_until_lfcliff_senses_black(0)
-    s.turn_right_until_lfcliff_senses_white(0)
+    s.turn_right_until_rfcliff_senses_black(0)
+    s.turn_right_until_rfcliff_senses_white(0)
     g.turn_right_gyro(60)
     #The Roomba starts delivering the left coupler.
-    
+    put_coupler_on_t()
 
 
 @print_function_name
@@ -79,20 +82,17 @@ def get_right_coupler():
     deposit_attempts = 0
     while s.isItemInClaw() and deposit_attempts < 3:
         print "I still have the coupler. Better try and put it on again!"
-        g.turn_right_gyro(180)
         m.lift_arm()
+        m.retract_wrist()
         s.wfollow_right_until_black_right_front(0)
         s.wfollow_right_until_black_right()
         s.turn_right_until_lfcliff_senses_black(0)
         s.turn_right_until_lfcliff_senses_white(0)
         g.turn_right_gyro(60)
         put_coupler_on_t()
-        lower_coupler_into_t()
-        push_in_coupler()
-        m.move_arm(101, 5, 1)
         deposit_attempts += 1
-    g.turn_right_gyro(180)
     m.lift_arm()
+    m.retract_wrist()
     s.wfollow_right_until_black_right_front(0)
     s.wfollow_right_until_black_right()
     s.turn_left_until_rfcliff_senses_black(0)
@@ -107,7 +107,7 @@ def get_right_coupler():
     g.backwards_gyro_through_line_lcliff(0)
     g.backwards_gyro_until_white_rcliff()
     s.align_close_cliffs()
-    g.backwards_gyro_until_item_is_in_claw(1300)
+    g.backwards_gyro_until_item_is_in_claw(1400)
     pick_up_coupler()
 
 
@@ -171,20 +171,17 @@ def put_coupler_on_t():
     s.wfollow_left_until_second_depth(0, speed=1.0)
     s.wfollow_left(1000)
     s.wfollow_left_smooth_slowly_until_second_depth(0)
-    msleep(300)
-    s.wfollow_left_smooth_slowly_until_not_second_depth()
-    turn_right_until_depth()
-    
-            
-
-@print_function_name           
-def lower_coupler_into_t():
-    g.forwards_gyro(100)
-
-
-@print_function_name           
-def push_in_coupler():
-    g.forwards_gyro(100)
+    s.wfollow_left_smooth_slowly(1200)
+    s.wfollow_left_smooth_slowly_until_not_second_depth(0)
+    s.wfollow_left_smooth_slowly(500)
+    m.move_wrist(1376, 3, 1)
+    m.move_arm(366, 3, 1)
+    msleep(1000)
+    u.halve_speeds()
+    g.backwards_gyro(500)
+    g.turn_left_gyro(50)
+    u.normalize_speeds()
+    u.reset_roomba()
 
 
 @print_function_name

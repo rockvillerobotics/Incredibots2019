@@ -200,6 +200,7 @@ def retract_micro(tics=3, ms=1, servo_position=c.MICRO_RETRACTED_POS):
 
 
 def move_arm(desired_arm_position=c.ARM_DOWN_POS, arm_tics=3, arm_ms=1):
+    print "Moving arm to: %d" % desired_arm_position
     if desired_arm_position > c.MAX_ARM_POS:
         print "Invalid desired servo position\n"
         exit(86)
@@ -210,6 +211,7 @@ def move_arm(desired_arm_position=c.ARM_DOWN_POS, arm_tics=3, arm_ms=1):
 
 
 def move_wrist(desired_wrist_position=c.WRIST_IN_POS, wrist_tics=3, wrist_ms=1):
+    print "Moving wrist to: %d" % desired_wrist_position
     if desired_wrist_position > c.MAX_WRIST_POS:
         print "Invalid desired servo position\n"
         exit(86)
@@ -221,6 +223,7 @@ def move_wrist(desired_wrist_position=c.WRIST_IN_POS, wrist_tics=3, wrist_ms=1):
 
 
 def move_magnet_arm(desired_magnet_arm_position=c.MAGNET_ARM_DOWN_POS, magnet_arm_tics=3, magnet_arm_ms=1):
+    print "Moving magnet arm to: %d" % desired_magnet_arm_position
     if desired_magnet_arm_position > c.MAX_MAGNET_ARM_POS:
         print "Invalid desired servo position\n"
         exit(86)
@@ -231,6 +234,7 @@ def move_magnet_arm(desired_magnet_arm_position=c.MAGNET_ARM_DOWN_POS, magnet_ar
 
 
 def move_micro(desired_micro_position=c.MICRO_RETRACTED_POS, micro_tics=3, micro_ms=1):
+    print "Moving micro to: %d" % desired_micro_position
     if desired_micro_position > c.MAX_MICRO_POS:
         print "Invalid desired servo position\n"
         exit(86)
@@ -241,6 +245,7 @@ def move_micro(desired_micro_position=c.MICRO_RETRACTED_POS, micro_tics=3, micro
 
 
 def move_claw(desired_claw_position=c.CLAW_CLOSE_POS, claw_tics=3, claw_ms=1):
+    print "Moving claw to: %d" % desired_claw_position
     if desired_claw_position > c.MAX_CLAW_POS:
         print "Invalid desired servo position\n"
         exit(86)
