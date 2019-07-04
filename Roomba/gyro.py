@@ -19,7 +19,7 @@ def calibrate_gyro():
 
 
 @print_function_name
-def forwards_gyro(time):
+def forwards_gyro(time, should_stop=True):
     angle = 0
     error = 0
     sec = seconds() + time / 1000.0
@@ -30,7 +30,8 @@ def forwards_gyro(time):
         msleep(10)
         angle += (gyro_z() - bias) * 10
         error = 0.003830106222 * angle  # Positive error means veering left. Negative means veering right.
-    m.deactivate_motors()
+    if should_stop:
+        m.deactivate_motors()
 
 
 @print_function_name
@@ -49,27 +50,27 @@ def backwards_gyro(time):
 
 
 @print_function_name
-def turn_left_gyro(degrees=90):
-    turn_gyro(degrees)
+def turn_left_gyro(degrees=90, time=c.RIGHT_TURN_TIME * 6):
+    turn_gyro(degrees, time)
 
 
 @print_function_name
-def turn_right_gyro(degrees=90):
-    turn_gyro(-degrees)
+def turn_right_gyro(degrees=90, time=c.RIGHT_TURN_TIME * 6):
+    turn_gyro(-degrees, time)
 
 
-def turn_gyro(degrees):
+def turn_gyro(degrees, time=c.SAFETY_TIME):
     angle = 0
     target_angle = degrees * c.DEGREE_CONVERSION_RATE
     if target_angle > 0:
         m.base_turn_left()
-        sec = seconds() + c.SAFETY_TIME
+        sec = seconds() + time
         while angle < target_angle and seconds() < sec:
             msleep(10)
             angle += (gyro_z() - bias) * 10
     else:
         m.base_turn_right()
-        sec = seconds() + c.SAFETY_TIME
+        sec = seconds() + time
         while angle > target_angle and seconds() < sec:
             msleep(10)
             angle += (gyro_z() - bias) * 10
@@ -455,7 +456,7 @@ def forwards_gyro_through_line_lfcliff(time=c.SAFETY_TIME):
 
 @print_function_name_only_at_beginning
 def forwards_gyro_through_line_rfcliff(time=c.SAFETY_TIME):
-    forwards_gyro_until_black_rcliff(0)
+    forwards_gyro_until_black_rfcliff(0)
     forwards_gyro_until_white_rfcliff(time)
 
 
@@ -483,6 +484,39 @@ def backwards_gyro_through_line_rfcliff(time=c.SAFETY_TIME):
     backwards_gyro_until_white_rfcliff(time)
 
 
+@print_function_name
+def backwards_gyro_until_both_white_cliffs(time=c.SAFETY_TIME):
+    angle = 0
+    error = 0
+    if time == 0:
+        time = c.SAFETY_TIME_NO_STOP
+    sec = seconds() + time / 1000.0
+    while seconds() < sec and (s.isRightOnWhite() and s.isLeftOnWhite()):
+        left_speed = -c.BASE_LM_POWER + error
+        right_speed = -c.BASE_RM_POWER - error
+        m.activate_motors(left_speed, right_speed)
+        msleep(10)
+        angle += (gyro_z() - bias) * 10
+        error = 0.003830106222 * angle  # Positive error means veering left. Negative means veering right.
+    if s.isRightOnBlack():
+        while seconds() < sec and s.isLeftOnWhite():
+            left_speed = -c.BASE_LM_POWER + error
+            right_speed = -c.BASE_RM_POWER - error
+            m.activate_motors(left_speed, right_speed)
+            msleep(10)
+            angle += (gyro_z() - bias) * 10
+            error = 0.003830106222 * angle  # Positive error means veering left. Negative means veering right.
+    else:
+        while seconds() < sec and s.isLeftOnWhite():
+            left_speed = -c.BASE_LM_POWER + error
+            right_speed = -c.BASE_RM_POWER - error
+            m.activate_motors(left_speed, right_speed)
+            msleep(10)
+            angle += (gyro_z() - bias) * 10
+            error = 0.003830106222 * angle  # Positive error means veering left. Negative means veering right.
+    if time != c.SAFETY_TIME_NO_STOP:
+        m.deactivate_motors()
+
 #--------------------------------Gyro Movement Until Depth---------------------------------------------
 
 @print_function_name
@@ -493,6 +527,24 @@ def backwards_gyro_until_second_depth(time=c.SAFETY_TIME):
         time = c.SAFETY_TIME_NO_STOP
     sec = seconds() + time / 1000.0
     while seconds() < sec and s.isSecondDepthNotSensed():
+        left_speed = -c.BASE_LM_POWER + error
+        right_speed = -c.BASE_RM_POWER - error
+        m.activate_motors(left_speed, right_speed)
+        msleep(10)
+        angle += (gyro_z() - bias) * 10
+        error = 0.003830106222 * angle  # Positive error means veering left. Negative means veering right.
+    if time != c.SAFETY_TIME_NO_STOP:
+        m.deactivate_motors()
+
+            
+@print_function_name
+def backwards_gyro_until_depth(time=c.SAFETY_TIME):
+    angle = 0
+    error = 0
+    if time == 0:
+        time = c.SAFETY_TIME_NO_STOP
+    sec = seconds() + time / 1000.0
+    while seconds() < sec and s.isDepthNotSensed():
         left_speed = -c.BASE_LM_POWER + error
         right_speed = -c.BASE_RM_POWER - error
         m.activate_motors(left_speed, right_speed)

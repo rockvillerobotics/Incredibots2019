@@ -14,7 +14,7 @@ import utils as u
 
 
 def get_change_in_angle():
-    return(-gyro_x())
+    return(gyro_z())
 
 def calibrate_gyro():
     i = 0
@@ -111,49 +111,51 @@ def print_robot_angle():
 # reduce the error proportionally to how big the error is.
 
 @print_function_name_with_arrows
-def drive_gyro(time, stop=True):
+def drive_gyro(time, should_stop=True):
     angle = 0
     error = 0
+    memory = 0
     if time == 0:
-        stop = False
-        time = c.SAFETY_TIME
+        should_stop = False
         time = c.SAFETY_TIME
     sec = seconds() + time / 1000.0
     while seconds() < sec:
-        left_speed = c.BASE_LM_POWER + error
-        right_speed = c.BASE_RM_POWER + error
+        left_speed = c.BASE_LM_POWER + error + memory
+        right_speed = c.BASE_RM_POWER + error + memory
         m.activate_motors(left_speed, right_speed)
         msleep(10)
         angle += (get_change_in_angle() - bias) * 10
         error = 0.034470956 * angle  # Positive error means veering left. Negative means veering right.
-    if stop == True:
+        memory += 0.001 * error
+    if should_stop:
         m.deactivate_motors()
 
 
 @print_function_name_with_arrows
-def backwards_gyro(time, stop=True):
+def backwards_gyro(time, should_stop=True):
     angle = 0
     error = 0
+    memory = 0
     if time == 0:
-        stop = False
-        time = c.SAFETY_TIME
+        should_stop = False
         time = c.SAFETY_TIME
     sec = seconds() + time / 1000.0
     while seconds() < sec:
-        left_speed = -c.BASE_LM_POWER + error
-        right_speed = -c.BASE_RM_POWER + error
+        left_speed = -c.BASE_LM_POWER + error + memory
+        right_speed = -c.BASE_RM_POWER + error + memory
         m.activate_motors(left_speed, right_speed)
         msleep(10)
         angle += (get_change_in_angle() - bias) * 10
         error = 0.034470956 * angle  # Positive error means veering right. Negative means veering left.
-    if stop == True:
+        memory += 0.001 * error
+    if should_stop:
         m.deactivate_motors()
 
 
 #-----------------------Gyro-Based Turning Commands-------------------------------------
 # The robot turns until the gyro sensor senses the desired angle.
 
-def turn_gyro(degrees, stop=True):
+def turn_gyro(degrees, should_stop=True):
     angle = 0
     target_angle = degrees * c.DEGREE_CONVERSION_RATE
     if target_angle > 0:
@@ -168,18 +170,18 @@ def turn_gyro(degrees, stop=True):
         while angle > target_angle and seconds() < sec:
             msleep(10)
             angle += (get_change_in_angle() - bias) * 10
-    if stop == True:
+    if should_stop:
         m.deactivate_motors()
 
 
-def turn_left_gyro(degrees=90, stop=True):
+def turn_left_gyro(degrees=90, should_stop=True):
     print "Starting turn_left_gyro() for " + str(degrees) + " degrees"
-    turn_gyro(degrees, stop)
+    turn_gyro(degrees, should_stop)
 
 
-def turn_right_gyro(degrees=90, stop=True):
+def turn_right_gyro(degrees=90, should_stop=True):
     print "Starting turn_right_gyro() for " + str(degrees) + " degrees"
-    turn_gyro(-degrees, stop)
+    turn_gyro(-degrees, should_stop)
 
 
 #----------------Gyro-Based Movement Until Tophat-----------------
@@ -187,218 +189,221 @@ def turn_right_gyro(degrees=90, stop=True):
 # bot doesn't veer on its way to a line.
 
 @print_function_name_with_arrows
-def drive_gyro_until(boolean, time=c.SAFETY_TIME, stop=True):
+def drive_gyro_until(boolean, time=c.SAFETY_TIME, should_stop=True):
     angle = 0
     error = 0
+    memory = 0
     if time == 0:
-        stop = False
+        should_stop = False
         time = c.SAFETY_TIME
     sec = seconds() + time / 1000.0
     while seconds() < sec and not(boolean()):
+        left_speed = c.BASE_LM_POWER + error + memory
+        right_speed = c.BASE_RM_POWER + error + memory
+        m.activate_motors(left_speed, right_speed)
+        msleep(10)
+        angle += (get_change_in_angle() - bias) * 10
+        error = 0.034470956 * angle  # Positive error means veering left. Negative means veering right.
+        memory += 0.00001 * error
+    if should_stop:
+        m.deactivate_motors()
+
+
+@print_function_name_with_arrows
+def drive_gyro_until_black_left(time=c.SAFETY_TIME, should_stop=True):
+    drive_gyro_until(s.isLeftOnBlack, time, should_stop)
+
+
+@print_function_name_with_arrows
+def drive_gyro_until_white_left(time=c.SAFETY_TIME, should_stop=True):
+    drive_gyro_until(s.isLeftOnWhite, time, should_stop)
+
+
+@print_function_name_with_arrows
+def drive_gyro_until_black_right(time=c.SAFETY_TIME, should_stop=True):
+    drive_gyro_until(s.isRightOnBlack, time, should_stop)
+
+
+@print_function_name_with_arrows
+def drive_gyro_until_white_right(time=c.SAFETY_TIME, should_stop=True):
+    drive_gyro_until(s.isRightOnWhite, time, should_stop)
+
+
+@print_function_name_with_arrows
+def drive_gyro_until_black_third(time=c.SAFETY_TIME, should_stop=True):
+    drive_gyro_until(s.isThirdOnBlack, time, should_stop)
+
+
+@print_function_name_with_arrows
+def drive_gyro_until_white_third(time=c.SAFETY_TIME, should_stop=True):
+    drive_gyro_until(s.isThirdOnWhite, time, should_stop)
+
+
+@print_function_name_with_arrows
+def drive_gyro_until_black_fourth(time=c.SAFETY_TIME, should_stop=True):
+    drive_gyro_until(s.isFourthOnBlack, time, should_stop)
+
+
+@print_function_name_with_arrows
+def drive_gyro_until_white_fourth(time=c.SAFETY_TIME, should_stop=True):
+    drive_gyro_until(s.isFourthOnWhite, time, should_stop)
+
+@print_function_name_with_arrows
+def drive_gyro_until_black_right_or_fourth(time=c.SAFETY_TIME, should_stop=True):
+    angle = 0
+    error = 0
+    if time == 0:
+        should_stop = False
+        time = c.SAFETY_TIME
+    sec = seconds() + time / 1000.0
+    while seconds() < sec and s.isFourthOnWhite() and s.isRightOnWhite():
         left_speed = c.BASE_LM_POWER + error
         right_speed = c.BASE_RM_POWER + error
         m.activate_motors(left_speed, right_speed)
         msleep(10)
         angle += (get_change_in_angle() - bias) * 10
-        error = 0.034470956 * angle  # Positive error means veering left. Negative means veering right.
-    if stop == True:
+        error = 0.034470956 * angle  # Positive error means veering left.
+        memory += 0.001 * error
+    if should_stop:
         m.deactivate_motors()
 
 
 @print_function_name_with_arrows
-def drive_gyro_until_black_left(time=c.SAFETY_TIME, stop=True):
-    drive_gyro_until(s.isLeftOnBlack, time, stop)
-
-
-@print_function_name_with_arrows
-def drive_gyro_until_white_left(time=c.SAFETY_TIME, stop=True):
-    drive_gyro_until(s.isLeftOnWhite, time, stop)
-
-
-@print_function_name_with_arrows
-def drive_gyro_until_black_right(time=c.SAFETY_TIME, stop=True):
-    drive_gyro_until(s.isRightOnBlack, time, stop)
-
-
-@print_function_name_with_arrows
-def drive_gyro_until_white_right(time=c.SAFETY_TIME, stop=True):
-    drive_gyro_until(s.isRightOnWhite, time, stop)
-
-
-@print_function_name_with_arrows
-def drive_gyro_until_black_third(time=c.SAFETY_TIME, stop=True):
-    drive_gyro_until(s.isThirdOnBlack, time, stop)
-
-
-@print_function_name_with_arrows
-def drive_gyro_until_white_third(time=c.SAFETY_TIME, stop=True):
-    drive_gyro_until(s.isThirdOnWhite, time, stop)
-
-
-@print_function_name_with_arrows
-def drive_gyro_until_black_fourth(time=c.SAFETY_TIME, stop=True):
-    drive_gyro_until(s.isFourthOnBlack, time, stop)
-
-
-@print_function_name_with_arrows
-def drive_gyro_until_white_fourth(time=c.SAFETY_TIME, stop=True):
-    drive_gyro_until(s.isFourthOnWhite, time, stop)
-
-@print_function_name_with_arrows
-def drive_gyro_until_black_right_or_fourth(time=c.SAFETY_TIME, stop=True):
+def backwards_gyro_until(boolean_function, time=c.SAFETY_TIME, should_stop=True):
     angle = 0
     error = 0
+    memory = 0
     if time == 0:
-        stop = False
-        time = c.SAFETY_TIME
-        time = c.SAFETY_TIME
-    sec = seconds() + time / 1000.0
-    while seconds() < sec and s.isFourthOnWhite() and s.isRightOnWhite():
-        left_speed = c.BASE_LM_POWER - error
-        right_speed = c.BASE_RM_POWER - error
-        m.activate_motors(left_speed, right_speed)
-        msleep(10)
-        angle += (get_change_in_angle() - bias) * 10
-        error = 0.034470956 * angle  # Positive error means veering left. Negative means veering right.
-    if stop == True:
-        m.deactivate_motors()
-
-
-@print_function_name_with_arrows
-def backwards_gyro_until(boolean_function, time=c.SAFETY_TIME, stop=True):
-    angle = 0
-    error = 0
-    if time == 0:
-        stop = False
-        time = c.SAFETY_TIME
+        should_stop = False
         time = c.SAFETY_TIME
     sec = seconds() + time / 1000.0
     while seconds() < sec and not(boolean_function()):
-        left_speed = -c.BASE_LM_POWER + error
-        right_speed = -c.BASE_RM_POWER + error
+        left_speed = -c.BASE_LM_POWER + error + memory
+        right_speed = -c.BASE_RM_POWER + error + memory
         m.activate_motors(left_speed, right_speed)
         msleep(10)
         angle += (get_change_in_angle() - bias) * 10
         error = 0.034470956 * angle  # Positive error means veering left. Negative means veering right.
-    if stop == True:
+        memory += 0.001 * error
+    if should_stop:
         m.deactivate_motors()
 
 
 @print_function_name_with_arrows
-def backwards_gyro_until_black_left(time=c.SAFETY_TIME, stop=True):
-    backwards_gyro_until(s.isLeftOnBlack, time, stop)
+def backwards_gyro_until_black_left(time=c.SAFETY_TIME, should_stop=True):
+    backwards_gyro_until(s.isLeftOnBlack, time, should_stop)
 
 
 @print_function_name_with_arrows
-def backwards_gyro_until_white_left(time=c.SAFETY_TIME, stop=True):
-    backwards_gyro_until(s.isLeftOnWhite, time, stop)
+def backwards_gyro_until_white_left(time=c.SAFETY_TIME, should_stop=True):
+    backwards_gyro_until(s.isLeftOnWhite, time, should_stop)
 
 
 @print_function_name_with_arrows
-def backwards_gyro_until_black_right(time=c.SAFETY_TIME, stop=True):
-    backwards_gyro_until(s.isRightOnBlack, time, stop)
+def backwards_gyro_until_black_right(time=c.SAFETY_TIME, should_stop=True):
+    backwards_gyro_until(s.isRightOnBlack, time, should_stop)
 
 
 @print_function_name_with_arrows
-def backwards_gyro_until_white_right(time=c.SAFETY_TIME, stop=True):
-    backwards_gyro_until(s.isRightOnWhite, time, stop)
+def backwards_gyro_until_white_right(time=c.SAFETY_TIME, should_stop=True):
+    backwards_gyro_until(s.isRightOnWhite, time, should_stop)
 
 
 @print_function_name_with_arrows
-def backwards_gyro_until_black_third(time=c.SAFETY_TIME, stop=True):
-    backwards_gyro_until(s.isThirdOnBlack, time, stop)
+def backwards_gyro_until_black_third(time=c.SAFETY_TIME, should_stop=True):
+    backwards_gyro_until(s.isThirdOnBlack, time, should_stop)
 
 
 @print_function_name_with_arrows
-def backwards_gyro_until_white_third(time=c.SAFETY_TIME, stop=True):
-    backwards_gyro_until(s.isThirdOnWhite, time, stop)
+def backwards_gyro_until_white_third(time=c.SAFETY_TIME, should_stop=True):
+    backwards_gyro_until(s.isThirdOnWhite, time, should_stop)
 
 
 @print_function_name_with_arrows
-def backwards_gyro_until_black_fourth(time=c.SAFETY_TIME, stop=True):
-    backwards_gyro_until(s.isFourthOnBlack, time, stop)
+def backwards_gyro_until_black_fourth(time=c.SAFETY_TIME, should_stop=True):
+    backwards_gyro_until(s.isFourthOnBlack, time, should_stop)
 
 
 @print_function_name_with_arrows
-def backwards_gyro_until_white_fourth(time=c.SAFETY_TIME, stop=True):
-    backwards_gyro_until(s.isFourthOnWhite, time, stop)
+def backwards_gyro_until_white_fourth(time=c.SAFETY_TIME, should_stop=True):
+    backwards_gyro_until(s.isFourthOnWhite, time, should_stop)
 
 
 @print_function_name
-def drive_gyro_through_line_left(time=c.SAFETY_TIME, stop=True):
-    drive_gyro_until_black_left(stop=False)
-    drive_gyro_until_white_left(time, stop)
+def drive_gyro_through_line_left(time=c.SAFETY_TIME, should_stop=True):
+    drive_gyro_until_black_left(should_stop=False)
+    drive_gyro_until_white_left(time, should_stop)
 
 
 @print_function_name
-def drive_gyro_through_line_right(time=c.SAFETY_TIME, stop=True):
-    drive_gyro_until_black_right(stop=False)
-    drive_gyro_until_white_right(time, stop)
+def drive_gyro_through_line_right(time=c.SAFETY_TIME, should_stop=True):
+    drive_gyro_until_black_right(should_stop=False)
+    drive_gyro_until_white_right(time, should_stop)
 
 
 @print_function_name
-def drive_gyro_through_line_third(time=c.SAFETY_TIME, stop=True):
-    drive_gyro_until_black_third(stop=False)
-    drive_gyro_until_white_third(time, stop)
+def drive_gyro_through_line_third(time=c.SAFETY_TIME, should_stop=True):
+    drive_gyro_until_black_third(should_stop=False)
+    drive_gyro_until_white_third(time, should_stop)
 
 
 @print_function_name
-def drive_gyro_through_line_fourth(time=c.SAFETY_TIME, stop=True):
-    drive_gyro_until_black_fourth(stop=False)
-    drive_gyro_until_white_fourth(time, stop)
+def drive_gyro_through_line_fourth(time=c.SAFETY_TIME, should_stop=True):
+    drive_gyro_until_black_fourth(should_stop=False)
+    drive_gyro_until_white_fourth(time, should_stop)
 
 
 @print_function_name
-def backwards_gyro_through_line_left(time=c.SAFETY_TIME, stop=True):
-    backwards_gyro_until_black_left(stop=False)
-    backwards_gyro_until_white_left(time, stop)
+def backwards_gyro_through_line_left(time=c.SAFETY_TIME, should_stop=True):
+    backwards_gyro_until_black_left(should_stop=False)
+    backwards_gyro_until_white_left(time, should_stop)
 
 
 @print_function_name
-def backwards_gyro_through_line_right(time=c.SAFETY_TIME, stop=True):
-    backwards_gyro_until_black_right(stop=False)
-    backwards_gyro_until_white_right(time, stop)
+def backwards_gyro_through_line_right(time=c.SAFETY_TIME, should_stop=True):
+    backwards_gyro_until_black_right(should_stop=False)
+    backwards_gyro_until_white_right(time, should_stop)
 
 
 @print_function_name
-def backwards_gyro_through_line_third(time=c.SAFETY_TIME, stop=True):
-    backwards_gyro_until_black_third(stop=False)
-    backwards_gyro_until_white_third(time, stop)
+def backwards_gyro_through_line_third(time=c.SAFETY_TIME, should_stop=True):
+    backwards_gyro_until_black_third(should_stop=False)
+    backwards_gyro_until_white_third(time, should_stop)
 
 
 @print_function_name
-def drive_gyro_to_line_left(time=c.SAFETY_TIME, stop=True):
-    drive_gyro_until_white_left(stop=False)
-    drive_gyro_until_black_left(time, stop)
+def drive_gyro_to_line_left(time=c.SAFETY_TIME, should_stop=True):
+    drive_gyro_until_white_left(should_stop=False)
+    drive_gyro_until_black_left(time, should_stop)
 
 
 @print_function_name
-def drive_gyro_to_line_right(time=c.SAFETY_TIME, stop=True):
-    drive_gyro_until_white_right(stop=False)
-    drive_gyro_until_black_right(time, stop)
+def drive_gyro_to_line_right(time=c.SAFETY_TIME, should_stop=True):
+    drive_gyro_until_white_right(should_stop=False)
+    drive_gyro_until_black_right(time, should_stop)
 
 
 @print_function_name
-def drive_gyro_to_line_third(time=c.SAFETY_TIME, stop=True):
-    drive_gyro_until_white_third(stop=False)
-    drive_gyro_until_black_third(time, stop)
+def drive_gyro_to_line_third(time=c.SAFETY_TIME, should_stop=True):
+    drive_gyro_until_white_third(should_stop=False)
+    drive_gyro_until_black_third(time, should_stop)
 
 
 @print_function_name
-def backwards_gyro_to_line_left(time=c.SAFETY_TIME, stop=True):
-    backwards_gyro_until_white_left(stop=False)
-    backwards_gyro_until_black_left(time, stop)
+def backwards_gyro_to_line_left(time=c.SAFETY_TIME, should_stop=True):
+    backwards_gyro_until_white_left(should_stop=False)
+    backwards_gyro_until_black_left(time, should_stop)
 
 
 @print_function_name
-def backwards_gyro_to_line_right(time=c.SAFETY_TIME, stop=True):
-    backwards_gyro_until_white_right(stop=False)
-    backwards_gyro_until_black_right(time, stop)
+def backwards_gyro_to_line_right(time=c.SAFETY_TIME, should_stop=True):
+    backwards_gyro_until_white_right(should_stop=False)
+    backwards_gyro_until_black_right(time, should_stop)
 
 
 @print_function_name
-def backwards_gyro_to_line_third(time=c.SAFETY_TIME, stop=True):
-    backwards_gyro_until_white_third(stop=False)
-    backwards_gyro_until_black_third(time, stop)
+def backwards_gyro_to_line_third(time=c.SAFETY_TIME, should_stop=True):
+    backwards_gyro_until_white_third(should_stop=False)
+    backwards_gyro_until_black_third(time, should_stop)
 
 #-------------------------Debug-----------------------------

@@ -86,10 +86,12 @@ def calibrate():
         angle += (gyro_z() - g.bias) * 10
         error = 0.003830106222 * angle  # Positive error means veering left. Negative means veering right.
     m.deactivate_motors()
-    c.LCLIFF_BW = ((c.MAX_SENSOR_VALUE_LCLIFF + c.MIN_SENSOR_VALUE_LCLIFF) / 2) - 100
-    c.RCLIFF_BW = ((c.MAX_SENSOR_VALUE_RCLIFF + c.MIN_SENSOR_VALUE_RCLIFF) / 2) - 100
-    c.LFCLIFF_BW = ((c.MAX_SENSOR_VALUE_LFCLIFF + c.MIN_SENSOR_VALUE_LFCLIFF) / 2) - 100
-    c.RFCLIFF_BW = ((c.MAX_SENSOR_VALUE_RFCLIFF + c.MIN_SENSOR_VALUE_RFCLIFF) / 2) - 200
+    # If sensing black when should be sensing white, decrease bias.
+    # If sensing white when should be sensing black, increase bias
+    c.LCLIFF_BW = ((c.MAX_SENSOR_VALUE_LCLIFF + c.MIN_SENSOR_VALUE_LCLIFF) / 2) + 100
+    c.RCLIFF_BW = ((c.MAX_SENSOR_VALUE_RCLIFF + c.MIN_SENSOR_VALUE_RCLIFF) / 2) + 100
+    c.LFCLIFF_BW = ((c.MAX_SENSOR_VALUE_LFCLIFF + c.MIN_SENSOR_VALUE_LFCLIFF) / 2) + 100
+    c.RFCLIFF_BW = ((c.MAX_SENSOR_VALUE_RFCLIFF + c.MIN_SENSOR_VALUE_RFCLIFF) / 2) + 100
     c.BASE_LM_POWER = int((total_left_speed * 2) / run_throughs)
     c.BASE_RM_POWER = int((total_right_speed * 2) / run_throughs)
     c.FULL_LM_POWER = c.BASE_LM_POWER
@@ -104,19 +106,17 @@ def calibrate():
     print "BASE_RM_POWER: " + str(c.BASE_RM_POWER)
     msleep(100)
     c.CLAW_TOPHAT_NOTHING_READING = total_tophat_reading / run_throughs
-    print "\nPut coupler in claw and press the right button..."
-    s.wait_until(isRightButtonPressed)
-    c.CLAW_TOPHAT_COUPLER_READING = analog(c.CLAW_TOPHAT)
-    c.CLAW_TOPHAT_BW = (c.CLAW_TOPHAT_COUPLER_READING + c.CLAW_TOPHAT_NOTHING_READING) / 2
-    print "c.CLAW_TOPHAT_BW: " + str(c.CLAW_TOPHAT_BW)
-    if c.CLAW_TOPHAT_COUPLER_READING > c.CLAW_TOPHAT_NOTHING_READING:
-        print "Coupler reading is higher."
-    else:
-        print "Nothing reading is higher."
+    #print "\nPut coupler in claw and press the right button..."
+    #s.wait_until(isRightButtonPressed)
+    #c.CLAW_TOPHAT_COUPLER_READING = analog(c.CLAW_TOPHAT)
+    #c.CLAW_TOPHAT_BW = (c.CLAW_TOPHAT_COUPLER_READING + c.CLAW_TOPHAT_NOTHING_READING) / 2
+    #print "c.CLAW_TOPHAT_BW: " + str(c.CLAW_TOPHAT_BW)
+    #if c.CLAW_TOPHAT_COUPLER_READING > c.CLAW_TOPHAT_NOTHING_READING:
+    #    print "Coupler reading is higher."
+    #else:
+    #    print "Nothing reading is higher."
     s.backwards_until_black_cliffs()
     s.align_far_cliffs()
-    s.backwards_until_black_lfcliff()
-    s.align_far_fcliffs()
     s.backwards_through_line_lfcliff()
     s.align_close_fcliffs()
     m.backwards(200)

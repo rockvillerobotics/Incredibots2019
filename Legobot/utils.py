@@ -25,7 +25,7 @@ def isBumpSwitchBumped():
 def isBumpSwitchNotBumped():
     return(digital(c.BUMP_SENSOR) == 0)
 
-#-------------------------------Functions------------------------
+#-------------------------------Commands ------------------------
 
 def wait_for_button():
     print "Press Right Button..."
@@ -53,15 +53,22 @@ def setup():
     ao()
     msleep(100)
     g.calibrate_gyro()
+    cmpc(c.LEFT_MOTOR)
+    cmpc(c.RIGHT_MOTOR)
+    cmpc(c.AMBULANCE_ARM_MOTOR)
     enable_servo(c.CLAW_SERVO)
     enable_servo(c.ARM_SERVO)
+    enable_servo(c.MICRO_SERVO)
     #c.STARTING_ARM_POS = get_servo_position(c.ARM_SERVO)
     #print "STARTING_ARM_POS now: " + str(c.ARM_DOWN_POS)
     m.move_claw(c.STARTING_CLAW_POS)
     m.move_arm(c.ARM_DOWN_POS)
-    msleep(1000)
+    m.lower_ambulance_arm()
+    msleep(25)
+    ao()
     print "Set claw to starting position of %d" % c.STARTING_CLAW_POS
     print "Set arm to starting position of %d" % c.STARTING_ARM_POS
+    msleep(1000)
     #m.move_claw(c.CLAW_CHECKING_POS)
     #msleep(1000)
     #m.move_claw(c.STARTING_CLAW_POS)
@@ -124,12 +131,14 @@ def calibrate():
         total_seconds += seconds() - intermediete_seconds
         msleep(1)
     m.deactivate_motors()
-    c.LEFT_TOPHAT_BW = int(((max_sensor_value_left + min_sensor_value_left) / 2)) - 1000
-    c.RIGHT_TOPHAT_BW = int(((max_sensor_value_right + min_sensor_value_right) / 2)) - 1000
+    # If sensing black when it should be sensing white, increase bias
+    # If sensing white when it should be sensing black, decrease bias
+    c.LEFT_TOPHAT_BW = int(((max_sensor_value_left + min_sensor_value_left) / 2)) - 900
+    c.RIGHT_TOPHAT_BW = int(((max_sensor_value_right + min_sensor_value_right) / 2)) - 900
     if c.IS_MAIN_BOT:
         c.THIRD_TOPHAT_BW = int(((max_sensor_value_third + min_sensor_value_third) / 2)) + 1000
     else: # Clone bot
-        c.THIRD_TOPHAT_BW = int(((max_sensor_value_third + min_sensor_value_third) / 2))  + 1000
+        c.THIRD_TOPHAT_BW = int(((max_sensor_value_third + min_sensor_value_third) / 2))
     c.FOURTH_TOPHAT_BW = int(((max_sensor_value_fourth + min_sensor_value_fourth) / 2))
     avg_left_speed = total_left_speed / i
     avg_right_speed = total_right_speed / i
@@ -162,15 +171,14 @@ def calibrate():
     c.MAX_TOPHAT_VALUE_THIRD = max_sensor_value_third
     c.MIN_TOPHAT_VALUE_THIRD = min_sensor_value_third
     print "Finished Calibrating. Moving back into starting box...\n"
-    g.drive_gyro_through_line_left()
-    s.align_far()
+    #g.drive_gyro_through_line_left()
+    #s.align_far()
     m.move_arm(c.STARTING_ARM_POS)
-    g.drive_gyro(1200)
-    msleep(25)
-    ao()
-    msleep(3000)
-    #wait_for_light(c.LIGHT_SENSOR)
-    #shut_down_in(118)  # URGENT: PUT BACK IN BEFORE COMPETITION
+    m.lower_ambulance_arm()
+    off(c.LEFT_MOTOR)
+    off(c.RIGHT_MOTOR)
+    wait_for_light(c.LIGHT_SENSOR)
+    shut_down_in(118)  # URGENT: PUT BACK IN BEFORE COMPETITION
 
 
 def calibrate_manually(base_time = 60):
