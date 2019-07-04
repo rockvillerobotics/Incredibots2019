@@ -17,8 +17,8 @@ def main():
     a.get_ambulance()
     a.get_blocks()
     a.deliver_ambulance_and_blocks()
-    a.get_firefighters()
-    a.deliver_firefighters()
+    #a.get_firefighters()
+    #a.deliver_firefighters()
     u.shutdown()
 
 if __name__ == "__main__":
