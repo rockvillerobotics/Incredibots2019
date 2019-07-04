@@ -1,3 +1,4 @@
+
 from wallaby import *
 from decorators import *
 import constants as c
@@ -539,8 +540,46 @@ def lfollow_lfcliff_smooth_until_rfcliff_senses_white():
         else:
             m.base_veer_left()
 
+#--------------------------------------PID Line Follows Until Event-------------------------------------------------
+
+def lfollow_lfcliff_pid_until(boolean, time=c.SAFETY_TIME, bias=10):
+    target = 100.0 * (c.LFCLIFF_BW - c.MIN_SENSOR_VALUE_LFCLIFF) / (c.MAX_SENSOR_VALUE_LFCLIFF - c.MIN_SENSOR_VALUE_LFCLIFF) + bias
+    last_error = 0
+    integral = 0
+    if time == 0:
+        time = c.SAFETY_TIME_NO_STOP
+    sec = seconds() + time / 1000.0
+    while seconds() < sec and not(boolean()):
+        norm_reading = 100.0 * (get_create_lfcliff_amt() - c.MIN_SENSOR_VALUE_LFCLIFF) / (c.MAX_SENSOR_VALUE_LFCLIFF - c.MIN_SENSOR_VALUE_LFCLIFF)
+        error = target - norm_reading  # Positive error means black, negative means white.
+        derivative = error - last_error  # If rate of change is going negative, need to veer left
+        last_error = error
+        integral = 0.5 * integral + error
+        if error > 25 or error < -25:
+            kp = 3.2
+            ki = c.KI
+            kd = c.KD
+        elif error < 10 and error > -10:
+            kp = 0.1
+            ki = c.KI / 1000
+            kd = c.KD / 1000
+        else:
+            kp = 0.35
+            ki = c.KI / 100
+            kd = c.KD / 100
+        left_power = c.BASE_LM_POWER + ((kp * error) + (ki * integral) + (kd * derivative))
+        right_power = c.BASE_RM_POWER - ((kp * error) + (ki * integral) + (kd * derivative))  # Addition decreases power here
+        m.activate_motors(int(left_power), int(right_power))
+        c.CURRENT_LM_POWER = left_power
+        c.CURRENT_RM_POWER = right_power
+        msleep(1)
+    if time != c.SAFETY_TIME_NO_STOP:
+        m.deactivate_motors()
+
+
 #--------------------------------------PID Line Follows-------------------------------------------------
 
+@print_function_name
 def lfollow_rcliff_pid(time, bias=10):
     target = 100.0 * (c.RCLIFF_BW - c.MIN_SENSOR_VALUE_RCLIFF) / (c.MAX_SENSOR_VALUE_RCLIFF - c.MIN_SENSOR_VALUE_RCLIFF) + bias
     last_error = 0
@@ -575,6 +614,7 @@ def lfollow_rcliff_pid(time, bias=10):
         m.deactivate_motors()
 
 
+@print_function_name
 def lfollow_rcliff_pid_value_testing(time, bias=10):
     target = 100.0 * (c.RCLIFF_BW - c.MIN_SENSOR_VALUE_RCLIFF) / (c.MAX_SENSOR_VALUE_RCLIFF - c.MIN_SENSOR_VALUE_RCLIFF) + bias
     last_error = 0
@@ -612,6 +652,7 @@ def lfollow_rcliff_pid_value_testing(time, bias=10):
         m.deactivate_motors()
 
 
+@print_function_name
 def lfollow_rcliff_until_lcliff_senses_black_pid(time=c.SAFETY_TIME, bias=10):
     target = 100.0 * (c.RCLIFF_BW - c.MIN_SENSOR_VALUE_RCLIFF) / (c.MAX_SENSOR_VALUE_RCLIFF - c.MIN_SENSOR_VALUE_RCLIFF) + bias
     last_error = 0
@@ -646,6 +687,7 @@ def lfollow_rcliff_until_lcliff_senses_black_pid(time=c.SAFETY_TIME, bias=10):
         m.deactivate_motors()
 
 
+@print_function_name
 def lfollow_rcliff_inside_line_pid(time, bias=10):
     target = 100.0 * (c.RCLIFF_BW - c.MIN_SENSOR_VALUE_RCLIFF) / (c.MAX_SENSOR_VALUE_RCLIFF - c.MIN_SENSOR_VALUE_RCLIFF) + bias
     last_error = 0
@@ -680,6 +722,7 @@ def lfollow_rcliff_inside_line_pid(time, bias=10):
         m.deactivate_motors()
 
 
+@print_function_name
 def lfollow_lcliff_pid(time, bias=10):
     target = 100.0 * (c.LCLIFF_BW - c.MIN_SENSOR_VALUE_LCLIFF) / (c.MAX_SENSOR_VALUE_LCLIFF - c.MIN_SENSOR_VALUE_LCLIFF) + bias
     last_error = 0
@@ -714,6 +757,7 @@ def lfollow_lcliff_pid(time, bias=10):
         m.deactivate_motors()
 
 
+@print_function_name
 def lfollow_lcliff_value_testing_pid(time, bias=10):
     target = 100.0 * (c.LCLIFF_BW - c.MIN_SENSOR_VALUE_LCLIFF) / (c.MAX_SENSOR_VALUE_LCLIFF - c.MIN_SENSOR_VALUE_LCLIFF) + bias
     last_error = 0
@@ -751,6 +795,7 @@ def lfollow_lcliff_value_testing_pid(time, bias=10):
         m.deactivate_motors()
 
 
+@print_function_name
 def lfollow_lcliff_until_rcliff_senses_black_pid(time=c.SAFETY_TIME, bias=10):
     target = 100.0 * (c.LCLIFF_BW - c.MIN_SENSOR_VALUE_LCLIFF) / (c.MAX_SENSOR_VALUE_LCLIFF - c.MIN_SENSOR_VALUE_LCLIFF) + bias
     last_error = 0
@@ -786,6 +831,7 @@ def lfollow_lcliff_until_rcliff_senses_black_pid(time=c.SAFETY_TIME, bias=10):
 
 
 
+@print_function_name
 def lfollow_lcliff_inside_line_pid(time, bias=10):
     target = 100.0 * (c.LCLIFF_BW - c.MIN_SENSOR_VALUE_LCLIFF) / (c.MAX_SENSOR_VALUE_LCLIFF - c.MIN_SENSOR_VALUE_LCLIFF) + bias
     last_error = 0
@@ -820,6 +866,7 @@ def lfollow_lcliff_inside_line_pid(time, bias=10):
         m.deactivate_motors()
 
 
+@print_function_name
 def lfollow_rfcliff_pid(time, bias=10):
     target = 100.0 * (c.RFCLIFF_BW - c.MIN_SENSOR_VALUE_RFCLIFF) / (c.MAX_SENSOR_VALUE_RFCLIFF - c.MIN_SENSOR_VALUE_RFCLIFF) + bias
     last_error = 0
@@ -854,6 +901,7 @@ def lfollow_rfcliff_pid(time, bias=10):
         m.deactivate_motors()
 
 
+@print_function_name
 def lfollow_rfcliff_pid_value_testing(time, bias=10):
     target = 100.0 * (c.RFCLIFF_BW - c.MIN_SENSOR_VALUE_RFCLIFF) / (c.MAX_SENSOR_VALUE_RFCLIFF - c.MIN_SENSOR_VALUE_RFCLIFF) + bias
     last_error = 0
@@ -890,6 +938,7 @@ def lfollow_rfcliff_pid_value_testing(time, bias=10):
         m.deactivate_motors()
 
 
+@print_function_name
 def lfollow_rfcliff_until_lfcliff_senses_black_pid(time=c.SAFETY_TIME, bias=10):
     target = 100.0 * (c.RFCLIFF_BW - c.MIN_SENSOR_VALUE_RFCLIFF) / (c.MAX_SENSOR_VALUE_RFCLIFF - c.MIN_SENSOR_VALUE_RFCLIFF) + bias
     last_error = 0
@@ -903,18 +952,18 @@ def lfollow_rfcliff_until_lfcliff_senses_black_pid(time=c.SAFETY_TIME, bias=10):
         derivative = error - last_error  # If rate of change is going negative, need to veer left
         last_error = error
         integral = 0.5 * integral + error
-        if error > 30 or error < -30:
-            kp = 1.56
+        if error > 35 or error < -35:
+            kp = 3
             ki = c.KI
             kd = c.KD
-        elif error < 1 and error > -1:
-            kp = 0.67
-            ki = 0
-            kd = 0
+        elif error < 7 and error > -7:
+            kp = 0.01
+            ki = c.KI / 100
+            kd = c.KD / 100
         else:
-            kp = c.KP
-            ki = c.KI
-            kd = c.KD
+            kp = 0.04
+            ki = c.KI / 10
+            kd = c.KD / 10
         left_power = c.BASE_LM_POWER - ((kp * error) + (ki * integral) + (kd * derivative))
         right_power = c.BASE_RM_POWER + ((kp * error) - (ki * integral) + (kd * derivative))  # Addition decreases power here
         create_drive_direct(int(left_power), int(right_power))
@@ -924,6 +973,7 @@ def lfollow_rfcliff_until_lfcliff_senses_black_pid(time=c.SAFETY_TIME, bias=10):
         m.deactivate_motors()
 
 
+@print_function_name
 def lfollow_rfcliff_until_lfcliff_senses_white_pid(time=c.SAFETY_TIME, bias=10):
     target = 100.0 * (c.RFCLIFF_BW - c.MIN_SENSOR_VALUE_RFCLIFF) / (c.MAX_SENSOR_VALUE_RFCLIFF - c.MIN_SENSOR_VALUE_RFCLIFF) + bias
     last_error = 0
@@ -958,6 +1008,7 @@ def lfollow_rfcliff_until_lfcliff_senses_white_pid(time=c.SAFETY_TIME, bias=10):
         m.deactivate_motors()
 
 
+@print_function_name
 def lfollow_rfcliff_until_bump_pid(time=c.SAFETY_TIME, bias=10):
     target = 100.0 * (c.RFCLIFF_BW - c.MIN_SENSOR_VALUE_RFCLIFF) / (c.MAX_SENSOR_VALUE_RFCLIFF - c.MIN_SENSOR_VALUE_RFCLIFF) + bias
     last_error = 0
@@ -992,6 +1043,7 @@ def lfollow_rfcliff_until_bump_pid(time=c.SAFETY_TIME, bias=10):
         m.deactivate_motors()
 
 
+@print_function_name
 def lfollow_rfcliff_inside_line_pid(time, bias=10):
     target = 100.0 * (c.RFCLIFF_BW - c.MIN_SENSOR_VALUE_RFCLIFF) / (c.MAX_SENSOR_VALUE_RFCLIFF - c.MIN_SENSOR_VALUE_RFCLIFF) + bias
     last_error = 0
@@ -1027,6 +1079,7 @@ def lfollow_rfcliff_inside_line_pid(time, bias=10):
 
 
 
+@print_function_name
 def lfollow_rfcliff_inside_line_until_lfcliff_senses_black_pid(time=c.SAFETY_TIME, bias=10):
     target = 100.0 * (c.RFCLIFF_BW - c.MIN_SENSOR_VALUE_RFCLIFF) / (c.MAX_SENSOR_VALUE_RFCLIFF - c.MIN_SENSOR_VALUE_RFCLIFF) + bias
     last_error = 0
@@ -1061,6 +1114,7 @@ def lfollow_rfcliff_inside_line_until_lfcliff_senses_black_pid(time=c.SAFETY_TIM
         m.deactivate_motors()
 
 
+@print_function_name
 def lfollow_rfcliff_inside_line_until_lfcliff_senses_white_pid(time=c.SAFETY_TIME, bias=10):
     target = 100.0 * (c.RFCLIFF_BW - c.MIN_SENSOR_VALUE_RFCLIFF) / (c.MAX_SENSOR_VALUE_RFCLIFF - c.MIN_SENSOR_VALUE_RFCLIFF) + bias
     last_error = 0
@@ -1095,6 +1149,7 @@ def lfollow_rfcliff_inside_line_until_lfcliff_senses_white_pid(time=c.SAFETY_TIM
         m.deactivate_motors()
 
 
+@print_function_name
 def lfollow_lfcliff_pid(time, bias=10):
     target = 100.0 * (c.LFCLIFF_BW - c.MIN_SENSOR_VALUE_LFCLIFF) / (c.MAX_SENSOR_VALUE_LFCLIFF - c.MIN_SENSOR_VALUE_LFCLIFF) + bias
     last_error = 0
@@ -1129,6 +1184,7 @@ def lfollow_lfcliff_pid(time, bias=10):
         m.deactivate_motors()
 
 
+@print_function_name
 def lfollow_lfcliff_value_testing_pid(time, bias=10):
     target = 100.0 * (c.LFCLIFF_BW - c.MIN_SENSOR_VALUE_LFCLIFF) / (c.MAX_SENSOR_VALUE_LFCLIFF - c.MIN_SENSOR_VALUE_LFCLIFF) + bias
     last_error = 0
@@ -1165,108 +1221,22 @@ def lfollow_lfcliff_value_testing_pid(time, bias=10):
         m.deactivate_motors()
 
 
+@print_function_name
 def lfollow_lfcliff_until_rfcliff_senses_black_pid(time=c.SAFETY_TIME, bias=10):
-    target = 100.0 * (c.LFCLIFF_BW - c.MIN_SENSOR_VALUE_LFCLIFF) / (c.MAX_SENSOR_VALUE_LFCLIFF - c.MIN_SENSOR_VALUE_LFCLIFF) + bias
-    last_error = 0
-    integral = 0
-    if time == 0:
-        time = c.SAFETY_TIME_NO_STOP
-    sec = seconds() + time / 1000.0
-    while seconds() < sec and isRightFrontOnWhite():
-        norm_reading = 100.0 * (get_create_lfcliff_amt() - c.MIN_SENSOR_VALUE_LFCLIFF) / (c.MAX_SENSOR_VALUE_LFCLIFF - c.MIN_SENSOR_VALUE_LFCLIFF)
-        error = target - norm_reading  # Positive error means black, negative means white.
-        derivative = error - last_error  # If rate of change is going negative, need to veer left
-        last_error = error
-        integral = 0.5 * integral + error
-        if error > 30 or error < -30:
-            kp = 1.56
-            ki = c.KI
-            kd = c.KD
-        elif error < 1 and error > -1:
-            kp = 0.67
-            ki = 0
-            kd = 0
-        else:
-            kp = c.KP
-            ki = c.KI
-            kd = c.KD
-        left_power = c.BASE_LM_POWER + ((kp * error) - (ki * integral) + (kd * derivative))
-        right_power = c.BASE_RM_POWER - ((kp * error) + (ki * integral) + (kd * derivative))  # Addition decreases power here
-        create_drive_direct(int(left_power), int(right_power))
-        c.CURRENT_LM_POWER = left_power
-        c.CURRENT_RM_POWER = right_power
-    if time != c.SAFETY_TIME_NO_STOP:
-        m.deactivate_motors()
+    lfollow_lfcliff_pid_until(s.isRightFrontOnBlack, time, bias)
 
 
+@print_function_name
 def lfollow_lfcliff_until_rfcliff_senses_white_pid(time=c.SAFETY_TIME, bias=10):
-    target = 100.0 * (c.LFCLIFF_BW - c.MIN_SENSOR_VALUE_LFCLIFF) / (c.MAX_SENSOR_VALUE_LFCLIFF - c.MIN_SENSOR_VALUE_LFCLIFF) + bias
-    last_error = 0
-    integral = 0
-    if time == 0:
-        time = c.SAFETY_TIME_NO_STOP
-    sec = seconds() + time / 1000.0
-    while seconds() < sec and isRightFrontOnBlack():
-        norm_reading = 100.0 * (get_create_lfcliff_amt() - c.MIN_SENSOR_VALUE_LFCLIFF) / (c.MAX_SENSOR_VALUE_LFCLIFF - c.MIN_SENSOR_VALUE_LFCLIFF)
-        error = target - norm_reading  # Positive error means black, negative means white.
-        derivative = error - last_error  # If rate of change is going negative, need to veer left
-        last_error = error
-        integral = 0.5 * integral + error
-        if error > 30 or error < -30:
-            kp = 1.56
-            ki = c.KI
-            kd = c.KD
-        elif error < 1 and error > -1:
-            kp = 0.67
-            ki = 0
-            kd = 0
-        else:
-            kp = c.KP
-            ki = c.KI
-            kd = c.KD
-        left_power = c.BASE_LM_POWER + ((kp * error) - (ki * integral) + (kd * derivative))
-        right_power = c.BASE_RM_POWER - ((kp * error) + (ki * integral) + (kd * derivative))  # Addition decreases power here
-        create_drive_direct(int(left_power), int(right_power))
-        c.CURRENT_LM_POWER = left_power
-        c.CURRENT_RM_POWER = right_power
-    if time != c.SAFETY_TIME_NO_STOP:
-        m.deactivate_motors()
+    lfollow_lfcliff_pid_until(s.isRightFrontOnWhite, time, bias)
 
 
+@print_function_name
 def lfollow_lfcliff_until_bump_pid(time=c.SAFETY_TIME, bias=10):
-    target = 100.0 * (c.LFCLIFF_BW - c.MIN_SENSOR_VALUE_LFCLIFF) / (c.MAX_SENSOR_VALUE_LFCLIFF - c.MIN_SENSOR_VALUE_LFCLIFF) + bias
-    last_error = 0
-    integral = 0
-    if time == 0:
-        time = c.SAFETY_TIME_NO_STOP
-    sec = seconds() + time / 1000.0
-    while seconds() < sec and not(isRoombaBumped()):
-        norm_reading = 100.0 * (get_create_lfcliff_amt() - c.MIN_SENSOR_VALUE_LFCLIFF) / (c.MAX_SENSOR_VALUE_LFCLIFF - c.MIN_SENSOR_VALUE_LFCLIFF)
-        error = target - norm_reading  # Positive error means black, negative means white.
-        derivative = error - last_error  # If rate of change is going negative, need to veer left
-        last_error = error
-        integral = 0.5 * integral + error
-        if error > 30 or error < -30:
-            kp = 2
-            ki = c.KI
-            kd = c.KD
-        elif error < 1 and error > -1:
-            kp = 0.6667
-            ki = 0
-            kd = 0
-        else:
-            kp = c.KP
-            ki = c.KI
-            kd = c.KD
-        left_power = c.BASE_LM_POWER + ((kp * error) + (ki * integral) + (kd * derivative))
-        right_power = c.BASE_RM_POWER - ((kp * error) + (ki * integral) + (kd * derivative))  # Addition decreases power here
-        create_drive_direct(int(left_power), int(right_power))
-        c.CURRENT_LM_POWER = left_power
-        c.CURRENT_RM_POWER = right_power
-    if time != c.SAFETY_TIME_NO_STOP:
-        m.deactivate_motors()
+    lfollow_lfcliff_pid_until(s.isRoombaBumped, time, bias)
 
 
+@print_function_name
 def lfollow_lfcliff_inside_line_pid(time, bias=10):
     target = 100.0 * (c.LFCLIFF_BW - c.MIN_SENSOR_VALUE_LFCLIFF) / (c.MAX_SENSOR_VALUE_LFCLIFF - c.MIN_SENSOR_VALUE_LFCLIFF) + bias
     last_error = 0
@@ -1301,6 +1271,7 @@ def lfollow_lfcliff_inside_line_pid(time, bias=10):
         m.deactivate_motors()
 
 
+@print_function_name
 def lfollow_lfcliff_inside_line_until_rfcliff_senses_black_pid(time=c.SAFETY_TIME, bias=10):
     target = 100.0 * (c.LFCLIFF_BW - c.MIN_SENSOR_VALUE_LFCLIFF) / (c.MAX_SENSOR_VALUE_LFCLIFF - c.MIN_SENSOR_VALUE_LFCLIFF) + bias
     last_error = 0
@@ -1335,6 +1306,7 @@ def lfollow_lfcliff_inside_line_until_rfcliff_senses_black_pid(time=c.SAFETY_TIM
         m.deactivate_motors()
 
 
+@print_function_name
 def lfollow_lfcliff_inside_line_until_rfcliff_senses_white_pid(time=c.SAFETY_TIME, bias=10):
     target = 100.0 * (c.LFCLIFF_BW - c.MIN_SENSOR_VALUE_LFCLIFF) / (c.MAX_SENSOR_VALUE_LFCLIFF - c.MIN_SENSOR_VALUE_LFCLIFF) + bias
     last_error = 0
@@ -1505,7 +1477,7 @@ def base_wfollow_left_smooth(speed):
     msleep(c.LFOLLOW_REFRESH_RATE)
 
 
-def base_wfollow_right_smooth(speed):
+def base_wfollow_right_smooth(speed=1):
     if isRoombaBumped():
         #if c.FIRST_BUMP == True:
             #m.deactivate_motors()
@@ -1601,7 +1573,7 @@ def align_on_wall_left():
     m.deactivate_motors()
     msleep(100)
     g.turn_left_gyro(4)
-    msleep(500)
+    msleep(100)
 
 
 print_function_name
@@ -1615,7 +1587,7 @@ def align_on_wall_right():
     m.deactivate_motors()
     msleep(100)
     g.turn_right_gyro(4)
-    msleep(500)
+    msleep(100)
 
 #------- Wall-Based Bumps ---------
 # "wfollow" means "wall follow."
@@ -1731,6 +1703,7 @@ def wfollow_right_smooth_until_white_lcliff(time=c.SAFETY_TIME, speed=1, refresh
     wfollow_right_smooth_until(isRightOnWhite, speed)
 
 
+
 @print_function_name
 def wfollow_right_until_black_left_front(time=c.SAFETY_TIME, refresh_rate=c.LFOLLOW_REFRESH_RATE):
     if time == 0:
@@ -1765,6 +1738,18 @@ def wfollow_left_until_white_right_front(time=c.SAFETY_TIME, refresh_rate=c.LFOL
         base_wfollow_left()
     u.normalize_speeds()
     if time != c.SAFETY_TIME_NO_STOP:
+        m.deactivate_motors()
+
+
+@print_function_name
+def wfollow_right(time=c.SAFETY_TIME, should_stop=True, refresh_rate=c.LFOLLOW_REFRESH_RATE):
+    if time == 0:
+        time = c.SAFETY_TIME_NO_STOP
+    sec = seconds() + time / 1000.0
+    while seconds() < sec:
+        base_wfollow_right()
+    u.normalize_speeds()
+    if should_stop:
         m.deactivate_motors()
 
 
@@ -1972,7 +1957,7 @@ def wfollow_left_smooth_until_white_lfcliff(time=c.SAFETY_TIME, speed=1, refresh
 
 
 @print_function_name
-def wfollow_left_smooth_until_white_lfcliff(time=c.SAFETY_TIME, speed=1, refresh_rate=c.LFOLLOW_REFRESH_RATE):
+def wfollow_left_smooth_until_white_rfcliff(time=c.SAFETY_TIME, speed=1, refresh_rate=c.LFOLLOW_REFRESH_RATE):
     wfollow_left_smooth_until(isRightFrontOnWhite, speed, time)
 
 
@@ -1984,7 +1969,21 @@ def wfollow_left_smooth_until_white_lcliff(time=c.SAFETY_TIME, speed=1, refresh_
 @print_function_name
 def wfollow_left_smooth_until_white_lcliff(time=c.SAFETY_TIME, speed=1, refresh_rate=c.LFOLLOW_REFRESH_RATE):
     wfollow_left_smooth_until(isRightOnWhite, speed, time)
- 
+
+
+
+@print_function_name
+def wfollow_right_smooth(time=c.SAFETY_TIME, should_stop=True, refresh_rate=c.LFOLLOW_REFRESH_RATE):
+    if time == 0:
+        time = c.SAFETY_TIME_NO_STOP
+    sec = seconds() + time / 1000.0
+    while seconds() < sec:
+        base_wfollow_right_smooth()
+    u.normalize_speeds()
+    if should_stop:
+        m.deactivate_motors()
+
+
 @print_function_name
 def wfollow_right_smooth_until(boolean, speed, time=c.SAFETY_TIME, refresh_rate=c.LFOLLOW_REFRESH_RATE):
     if time == 0:
@@ -2045,7 +2044,7 @@ def wfollow_right_smooth_until_white_lfcliff(time=c.SAFETY_TIME, speed=1, refres
 
 
 @print_function_name
-def wfollow_right_smooth_until_white_lfcliff(time=c.SAFETY_TIME, speed=1, refresh_rate=c.LFOLLOW_REFRESH_RATE):
+def wfollow_right_smooth_until_white_rfcliff(time=c.SAFETY_TIME, speed=1, refresh_rate=c.LFOLLOW_REFRESH_RATE):
     wfollow_right_smooth_until(isRightFrontOnWhite, speed, time)
 
 
@@ -2053,7 +2052,12 @@ def wfollow_right_smooth_until_white_lfcliff(time=c.SAFETY_TIME, speed=1, refres
 def wfollow_right_smooth_until_white_lcliff(time=c.SAFETY_TIME, speed=1, refresh_rate=c.LFOLLOW_REFRESH_RATE):
     wfollow_right_smooth_until(isLeftOnWhite, speed, time)
         
-        
+
+@print_function_name
+def wfollow_right_smooth_until_white_rcliff(time=c.SAFETY_TIME, speed=1, refresh_rate=c.LFOLLOW_REFRESH_RATE):
+    wfollow_right_smooth_until(isRightOnWhite, speed, time)
+
+      
 @print_function_name
 def wfollow_right_backwards_smooth_until_black_lcliff(time=c.SAFETY_TIME, speed=1, refresh_rate=c.LFOLLOW_REFRESH_RATE):
     wfollow_right_backwards_smooth_until(isLeftOnBlack, speed, time)
@@ -2066,34 +2070,44 @@ def wfollow_right_backwards_smooth_until_white_lcliff(time=c.SAFETY_TIME, speed=
 
 @print_function_name_only_at_beginning
 def align_close_fcliffs():
+    u.halve_speeds()
     right_front_backwards_until_white()
     left_front_backwards_until_white()
     right_front_forwards_until_black()
     left_front_forwards_until_black()
+    right_front_backwards_until_white()
+    left_front_backwards_until_white()
+    u.normalize_speeds()
 
 
 @print_function_name_only_at_beginning
 def align_far_fcliffs():
+    u.halve_speeds()
     left_front_forwards_until_white()
     right_front_forwards_until_white()
     left_front_backwards_until_black()
     right_front_backwards_until_black()
+    u.normalize_speeds()
 
 
 @print_function_name_only_at_beginning
 def align_close_cliffs():
+    u.halve_speeds()
     left_backwards_until_lcliff_senses_white()
     right_backwards_until_rcliff_senses_white()
     left_forwards_until_lcliff_senses_black()
     right_forwards_until_rcliff_senses_black()
+    u.normalize_speeds()
 
 
 @print_function_name_only_at_beginning
 def align_far_cliffs():
+    u.halve_speeds()
     left_forwards_until_lcliff_senses_white()
     right_forwards_until_rcliff_senses_white()
     left_backwards_until_lcliff_senses_black()
     right_backwards_until_rcliff_senses_black()
+    u.normalize_speeds()
 
 #----------------------------------Single Motor Align Functions--------------
 

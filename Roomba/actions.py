@@ -9,25 +9,103 @@ import utils as u
 @print_function_name
 def get_left_coupler():
     # Gets to the bottom left square
-    g.forwards_gyro_until_black_lfcliff(0)
-    g.forwards_gyro_until_black_lcliff()
-    s.align_far_cliffs()
-    g.forwards_gyro_until_black_lfcliff()
+    g.forwards_gyro_through_line_rfcliff()
+    s.align_far_fcliffs()
+    g.forwards_gyro_until_white_rfcliff()
+    s.align_on_wall_left()
+    s.wfollow_left_smooth_until_white_rfcliff(0)
+    s.wfollow_left_smooth_until_black_rfcliff()
     s.align_close_fcliffs()
     # Turns right and goes to top left coupler
-    g.turn_right_gyro()
+    g.turn_right_gyro(85)
     g.forwards_gyro_through_line_rfcliff()
-    s.lfollow_lfcliff_until_bump_pid()
+    s.lfollow_lfcliff_until_bump_pid(bias=15)
     g.backwards_gyro(100)
     s.turn_right_until_rfcliff_senses_white(0)
-    s.turn_right_until_rfcliff_senses_black()
+    msleep(1500)
+    s.turn_right_until_rfcliff_senses_black(c.RIGHT_TURN_TIME * 6)
     s.lfollow_rfcliff_until_lfcliff_senses_black_pid()
     m.lower_arm()
-    g.turn_left_gyro(18)
-    g.backwards_gyro_until_item_is_in_claw(1100)
+    g.turn_left_gyro(23)
+    g.backwards_gyro(1125)
+    #g.backwards_gyro_until_item_is_in_claw(1100)
     pick_up_coupler()
 
 
+@print_function_name
+def go_to_magnets():
+    g.forwards_gyro_until_bump()
+    g.backwards_gyro(15)
+    g.turn_left_gyro()
+    s.wfollow_right_until_black_left(0)
+    s.wfollow_right_until_white_left_front(0)
+    s.wfollow_right_until_white_left(0)
+    s.wfollow_right_until_black_left_front(0)
+    s.wfollow_right_until_black_left()
+    s.align_on_wall_right()
+    s.wfollow_right_smooth(800, should_stop=False)
+    s.wfollow_right_smooth_until_white_rfcliff(0)
+    s.wfollow_right_smooth_until_black_rfcliff(0)
+    s.wfollow_right_smooth_until_black_rcliff()
+    g.backwards_gyro_until_both_white_cliffs()
+    s.align_close_cliffs()
+    g.forwards_gyro_through_line_rcliff(0)
+    g.forwards_gyro(300, should_stop=False)
+    g.forwards_gyro_until_bump()
+    g.backwards_gyro(15)
+    g.turn_left_gyro()
+    s.wfollow_right_until_black_right(0)
+    s.wfollow_right(1200)
+    s.align_on_wall_right()
+    s.wfollow_right_smooth(800, should_stop=False)
+    s.wfollow_right_smooth_until_white_rcliff(0)
+    s.wfollow_right_smooth_until_black_rcliff(0)
+    s.wfollow_right_smooth_until_white_rcliff()
+    
+
+@print_function_name
+def do_magnets():
+    g.backwards_gyro_until_black_rcliff()
+    g.forwards_gyro(100)
+    m.lift_magnet_arm()
+    s.align_on_wall_right()
+    s.wfollow_right_smooth_until_black_rcliff()
+    g.backwards_gyro_until_white_rcliff(0)
+    msleep(1000)
+    g.backwards_gyro(50)
+    m.lower_magnet_arm()
+    g.backwards_gyro_until_black_lfcliff()
+    s.align_far_fcliffs()
+    g.backwards_gyro(80)
+    m.lift_magnet_arm()
+    g.backwards_gyro(1500)
+    msleep(1000)
+    g.forwards_gyro(50)
+    m.lower_magnet_arm()
+
+
+@print_function_name
+def deliver_left_coupler():
+    g.turn_left_gyro(130)
+    g.forwards_gyro_until_bump()
+    m.move_wrist(884)
+    s.wfollow_left_until_black_right_front(0)
+    s.wfollow_left_until_black_left()
+    g.backwards_gyro_until_both_white_cliffs()
+    s.align_close_cliffs()
+    g.backwards_gyro(1150)
+    g.turn_right_gyro(25)
+    m.move_arm(c.ARM_JUST_BARELY_ON_T_POS)
+
+
+@print_function_name
+def pick_up_coupler():
+    m.base_backwards(0.1)
+    m.lift_arm(4,1)
+    m.deactivate_motors()
+
+
+"""
 @print_function_name
 def deliver_left_coupler():
     # Here, the Roomba goes to tne bottom left and bumps PVC
@@ -42,6 +120,8 @@ def deliver_left_coupler():
     s.wfollow_right_until_white_left(0)
     s.wfollow_right_until_black_left_front(0)
     s.wfollow_right_until_black_left()
+    s.right_backwards_until_rcliff_senses_white()
+    s.align_close_cliffs()
     #gets in position to deliver 1st coupler.
     g.turn_right_gyro(180)
     g.backwards_gyro_until_black_lfcliff()
@@ -55,7 +135,7 @@ def get_right_coupler():
     #turns around and wall follows to bottom right box
     m.lift_arm()
     m.retract_wrist()
-    g.turn_left_gyro(180)
+    #g.turn_left_gyro(180)
     s.wfollow_right_until_black_right_front(0)
     s.wfollow_right_until_black_right()
     s.turn_left_until_rfcliff_senses_black(0)
@@ -70,7 +150,7 @@ def get_right_coupler():
     g.backwards_gyro_through_line_lcliff(0)
     g.backwards_gyro_until_white_rcliff()
     s.align_close_cliffs()
-    g.backwards_gyro(1000)
+    g.backwards_gyro(500)
     g.backwards_gyro_until_item_is_in_claw(1400)
     pick_up_coupler()
 
@@ -125,19 +205,13 @@ def deliver_right_coupler():
 
 
 @print_function_name
-def pick_up_coupler():
-    m.base_backwards(.3)
-    m.lift_arm(3,1)
-    m.deactivate_motors()
-
-
-@print_function_name
 def put_coupler_on_t():
     m.move_wrist(1543, 3, 1)
     m.move_arm(312, 3, 1)
     u.halve_speeds()
-    g.backwards_gyro(3000)
+    g.backwards_gyro_until_depth()
     u.normalize_speeds()
+    g.turn_left_gyro(180, time=c.RIGHT_TURN_TIME * 6)
     u.reset_roomba(2000)
         
         
@@ -244,3 +318,5 @@ def turn_left_until_not_depth(should_stop=True, depth_cf=c.DEPTH_CF):
 @print_function_name
 def test_coupler_delivery():
     g.forwards_gyro(100)
+
+"""

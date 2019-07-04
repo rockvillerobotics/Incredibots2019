@@ -13,13 +13,11 @@ def main():
     print "Starting main()\n"
     u.setup()
     u.calibrate()  # You only need to include this command if you want the cliffs to sense better at the cost of speed.
-    #a.test_coupler_delivery()
     a.get_left_coupler()
-    a.deliver_left_coupler()
-    a.get_right_coupler()
     a.go_to_magnets()
+    u.reset_roomba()
     a.do_magnets()
-    a.deliver_right_coupler()
+    a.deliver_left_coupler()
     print "Finished main\n"
     u.shutdown()
     
