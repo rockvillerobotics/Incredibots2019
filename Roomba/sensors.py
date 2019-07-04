@@ -1984,8 +1984,7 @@ def wfollow_left_smooth_until_white_lcliff(time=c.SAFETY_TIME, speed=1, refresh_
 @print_function_name
 def wfollow_left_smooth_until_white_lcliff(time=c.SAFETY_TIME, speed=1, refresh_rate=c.LFOLLOW_REFRESH_RATE):
     wfollow_left_smooth_until(isRightOnWhite, speed, time)
-
-
+ 
 @print_function_name
 def wfollow_right_smooth_until(boolean, speed, time=c.SAFETY_TIME, refresh_rate=c.LFOLLOW_REFRESH_RATE):
     if time == 0:
