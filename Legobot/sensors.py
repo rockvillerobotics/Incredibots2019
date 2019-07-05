@@ -1693,7 +1693,7 @@ def lfollow_right_pid_value_testing(time, should_stop=True, bias=0):
 #----------------- PID Line Follow Until Event Commands --------------------------------------------------
 
 @print_function_name_with_arrows
-def lfollow_left_pid_until(boolean, should_open_and_close_micro=True, time=c.SAFETY_TIME, should_stop=True, bias=0):
+def lfollow_left_pid_until(boolean, time=c.SAFETY_TIME, should_stop=True, bias=0, should_open_and_close_micro=True):
     target = 100.0 * (c.LEFT_TOPHAT_BW - c.MIN_TOPHAT_VALUE_LEFT) / (c.MAX_TOPHAT_VALUE_LEFT - c.MIN_TOPHAT_VALUE_LEFT) + bias
     last_error = 0
     integral = 0
@@ -1732,12 +1732,12 @@ def lfollow_left_pid_until(boolean, should_open_and_close_micro=True, time=c.SAF
 
 @print_function_name_with_arrows
 def lfollow_left_pid_until_black_right(time=c.SAFETY_TIME, should_open_and_close_micro=False, should_stop=True, bias=0):
-    lfollow_left_pid_until(isRightOnBlack, time, should_open_and_close_micro, should_stop, bias)
+    lfollow_left_pid_until(isRightOnBlack, time, should_stop, bias, should_open_and_close_micro)
 
 
 @print_function_name_with_arrows
 def lfollow_left_pid_until_black_third(time=c.SAFETY_TIME, should_stop=True, bias=0):
-    lfollow_left_pid_until(isThirdOnBlack, time, should_stop, bias)
+    lfollow_left_pid_until(boolean=isThirdOnBlack, time=time, should_stop=should_stop, bias=bias)
 
 
 @print_function_name_with_arrows

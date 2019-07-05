@@ -61,14 +61,16 @@ def setup():
     enable_servo(c.MICRO_SERVO)
     #c.STARTING_ARM_POS = get_servo_position(c.ARM_SERVO)
     #print "STARTING_ARM_POS now: " + str(c.ARM_DOWN_POS)
-    m.move_claw(c.STARTING_CLAW_POS)
-    m.move_arm(c.ARM_DOWN_POS)
+    m.move_claw(c.CLAW_CHECKING_POS, 8, 1)
+    m.move_micro(c.MICRO_CHECKING_POS, 8, 1)
+    m.move_claw(c.STARTING_CLAW_POS, 8, 1)
+    m.move_arm(c.ARM_DOWN_POS, 8, 1)
+    m.move_micro(c.STARTING_MICRO_POS, 8, 1)
     m.lower_ambulance_arm()
     msleep(25)
     ao()
     print "Set claw to starting position of %d" % c.STARTING_CLAW_POS
     print "Set arm to starting position of %d" % c.STARTING_ARM_POS
-    msleep(1000)
     #m.move_claw(c.CLAW_CHECKING_POS)
     #msleep(1000)
     #m.move_claw(c.STARTING_CLAW_POS)
@@ -90,7 +92,7 @@ def calibrate():
     cmpc(c.LEFT_MOTOR)
     cmpc(c.RIGHT_MOTOR)
     if c.IS_MAIN_BOT:
-        calibrate_tics = 2500
+        calibrate_tics = 2100
     else: # Clone bot
         calibrate_tics = 3000
     print "Running calibrate()"
@@ -133,10 +135,10 @@ def calibrate():
     m.deactivate_motors()
     # If sensing black when it should be sensing white, increase bias
     # If sensing white when it should be sensing black, decrease bias
-    c.LEFT_TOPHAT_BW = int(((max_sensor_value_left + min_sensor_value_left) / 2)) - 900
-    c.RIGHT_TOPHAT_BW = int(((max_sensor_value_right + min_sensor_value_right) / 2)) - 900
+    c.LEFT_TOPHAT_BW = int(((max_sensor_value_left + min_sensor_value_left) / 2)) - 1000
+    c.RIGHT_TOPHAT_BW = int(((max_sensor_value_right + min_sensor_value_right) / 2)) - 1000
     if c.IS_MAIN_BOT:
-        c.THIRD_TOPHAT_BW = int(((max_sensor_value_third + min_sensor_value_third) / 2)) + 1000
+        c.THIRD_TOPHAT_BW = int(((max_sensor_value_third + min_sensor_value_third) / 2)) + 600
     else: # Clone bot
         c.THIRD_TOPHAT_BW = int(((max_sensor_value_third + min_sensor_value_third) / 2))
     c.FOURTH_TOPHAT_BW = int(((max_sensor_value_fourth + min_sensor_value_fourth) / 2))
@@ -173,7 +175,7 @@ def calibrate():
     print "Finished Calibrating. Moving back into starting box...\n"
     #g.drive_gyro_through_line_left()
     #s.align_far()
-    m.move_arm(c.STARTING_ARM_POS)
+    m.move_arm(c.STARTING_ARM_POS, 8, 1)
     m.lower_ambulance_arm()
     off(c.LEFT_MOTOR)
     off(c.RIGHT_MOTOR)
