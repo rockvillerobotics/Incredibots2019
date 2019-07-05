@@ -334,13 +334,6 @@ def move_micro(desired_micro_pos, micro_tics=3, micro_ms=1):
     move_servo(c.MICRO_SERVO, desired_micro_pos, micro_tics, micro_ms)
 
 
-def open_and_close_claw():
-    if get_servo_position(c.CLAW_SERVO) == c.CLAW_WAY_OPEN_POS:
-        set_servo_position(c.CLAW_SERVO, c.CLAW_CLOSE_POS)
-    else:
-        set_servo_position(c.CLAW_SERVO, c.CLAW_WAY_OPEN_POS)
-
-
 def wipe_with_micro(tics=5):
     if c.MICRO_LEFT_POS > c.MICRO_RIGHT_POS:
         tics = tics
@@ -348,16 +341,26 @@ def wipe_with_micro(tics=5):
         tics = -tics
     if c.MICRO_SHOULD_GO_LEFT:
         intermediate_position = get_servo_position(c.MICRO_SERVO) + tics
-        set_servo_position(c.MICRO_SERVO, intermediate_position)
-        if get_servo_position(c.MICRO_SERVO) > c.MICRO_LEFT_POS:
-            c.MICRO_SHOULD_GO_RIGHT = True
-            c.MICRO_SHOULD_GO_LEFT = False
+        move_servo_to(c.MICRO_SERVO, intermediate_position)
+        if c.MICRO_LEFT_POS > c.MICRO_RIGHT_POS:
+            if get_servo_position(c.MICRO_SERVO) > c.MICRO_LEFT_POS:
+                c.MICRO_SHOULD_GO_RIGHT = True
+                c.MICRO_SHOULD_GO_LEFT = False
+        else:
+            if get_servo_position(c.MICRO_SERVO) < c.MICRO_LEFT_POS:
+                c.MICRO_SHOULD_GO_RIGHT = False
+                c.MICRO_SHOULD_GO_LEFT = True
     elif c.MICRO_SHOULD_GO_RIGHT:
         intermediate_position = get_servo_position(c.MICRO_SERVO) - tics
-        set_servo_position(c.MICRO_SERVO, intermediate_position)
-        if get_servo_position(c.MICRO_SERVO) < c.MICRO_RIGHT_POS:
-            c.MICRO_SHOULD_GO_RIGHT = False
-            c.MICRO_SHOULD_GO_LEFT = True
+        move_servo_to(c.MICRO_SERVO, intermediate_position)
+        if c.MICRO_LEFT_POS > c.MICRO_RIGHT_POS:
+            if get_servo_position(c.MICRO_SERVO) < c.MICRO_RIGHT_POS:
+                c.MICRO_SHOULD_GO_RIGHT = False
+                c.MICRO_SHOULD_GO_LEFT = True
+        else:
+            if get_servo_position(c.MICRO_SERVO) > c.MICRO_RIGHT_POS:
+                c.MICRO_SHOULD_GO_RIGHT = False
+                c.MICRO_SHOULD_GO_LEFT = True
 
 
 def move_servo(servo_port, desired_servo_position, tics=3, ms=1):
@@ -396,6 +399,20 @@ def move_servo(servo_port, desired_servo_position, tics=3, ms=1):
     print "Completed servo_slow\n"
 
 
+def move_servo_to(servo_port, desired_servo_position):
+    invalid_desired_servo_position = False
+    print "Starting move_servo_to()"
+    print "Servo current position = %d" % get_servo_position(servo_port)
+    print "Servo desired position = %d" % desired_servo_position
+    if desired_servo_position > c.MAX_SERVO_POS:
+        print "Invalid desired servo position. Skipping movement...\n"
+        invalid_desired_servo_position = True
+    elif desired_servo_position < c.MIN_SERVO_POS:
+        print "Invalid desired servo position. Skipping movement...\n"
+        invalid_desired_servo_position = True
+    if not(invalid_desired_servo_position):
+        set_servo_position(servo_port, desired_servo_position)
+
 #------------------------------ Servo Motors -------------------------------
 # All these commands move the motors to a specified location at a specified speed.
 # The more tics per second, the faster the motors moves.
@@ -418,9 +435,8 @@ def lift_ambulance_arm(desired_speed=c.BASE_AMBULANCE_ARM_POWER):
 @print_function_name_with_arrows
 def lower_ambulance_arm(desired_speed=c.BASE_AMBULANCE_ARM_POWER):
     if s.isLeftLimitSwitchNotPressed():
-        mav(c.AMBULANCE_ARM_MOTOR, -300)
+        mav(c.AMBULANCE_ARM_MOTOR, -c.BASE_AMBULANCE_ARM_POWER)
         s.wait_until_limit_switch_is_pressed()
-        msleep(100)
         mav(c.AMBULANCE_ARM_MOTOR, 0)
     cmpc(c.AMBULANCE_ARM_MOTOR)
     #move_ambulance_arm(c.AMBULANCE_ARM_LOW_POS, desired_speed)
