@@ -7,7 +7,7 @@
 
 |**Branch**|**Build Status**|
 |:---------|:--------------:|
-|*[master](https://github.com/RockvilleRobotics/Incredibots2019/tree/master)*|[![Build Status](https://travis-ci.com/RockvilleRobotics/Incredibots2019.svg?branch=master)](https://travis-ci.com/RockvilleRobotics/Incredibots2019)|
+|*[master](https://github.com/RockvilleRobotics/Incredibots2019/tree/master)*|[![Build Status](https://travis-ci.org/rockvillerobotics/Incredibots2019.svg?branch=master)](https://travis-ci.org/rockvillerobotics/Incredibots2019)|
 
 Click the button if you would like more information; Click "Sign in with GitHub" and authorize your account and then press the button once again. **Keep in mind that, if you want to see your Build Status, you'll have to manually navigate, in the Travis CI interface, to the "Running" tab if you just made a commit or to the "Branches" tab if you previously made a commit.**
 
