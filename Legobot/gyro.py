@@ -189,7 +189,7 @@ def turn_right_gyro(degrees=90, should_stop=True):
 # bot doesn't veer on its way to a line.
 
 @print_function_name_with_arrows
-def drive_gyro_until(boolean, time=c.SAFETY_TIME, should_stop=True):
+def drive_gyro_until(boolean_function, time=c.SAFETY_TIME, should_stop=True):
     angle = 0
     error = 0
     memory = 0
@@ -197,7 +197,7 @@ def drive_gyro_until(boolean, time=c.SAFETY_TIME, should_stop=True):
         should_stop = False
         time = c.SAFETY_TIME
     sec = seconds() + time / 1000.0
-    while seconds() < sec and not(boolean()):
+    while seconds() < sec and not(boolean_function()):
         left_speed = c.BASE_LM_POWER + error + memory
         right_speed = c.BASE_RM_POWER + error + memory
         m.activate_motors(left_speed, right_speed)
@@ -252,6 +252,7 @@ def drive_gyro_until_white_fourth(time=c.SAFETY_TIME, should_stop=True):
 def drive_gyro_until_black_right_or_fourth(time=c.SAFETY_TIME, should_stop=True):
     angle = 0
     error = 0
+    memory = 0
     if time == 0:
         should_stop = False
         time = c.SAFETY_TIME

@@ -12,7 +12,7 @@ import gyro as g
 @print_function_name
 def get_ambulance():
     m.lift_ambulance_arm()
-    
+
 
 @print_function_name
 def get_blocks():
@@ -39,7 +39,7 @@ def get_blocks():
     g.backwards_gyro(800)
     m.lift_arm(1, 1)
     s.lfollow_left_pid_until_black_right(bias=10)
-   
+
 
 
 
@@ -49,7 +49,7 @@ def deliver_ambulance_and_blocks():
     if c.SAFE_HOSPITAL == c.NEAR_ZONE:
         g.drive_gyro_through_line_right()
         s.align_far()
-        m.open_claw(1, 1, c.CLAW_VERY_OPEN_POS)
+        m.open_claw(1, 1, c.CLAW_WAY_OPEN_POS)
         msleep(500)
         m.move_arm(c.ARM_HIGH_POS)
         #m.move_claw(c.CLAW_WAY_OPEN_POS)
@@ -72,7 +72,7 @@ def deliver_ambulance_and_blocks():
     g.backwards_gyro_through_line_left(1100)
     m.lower_ambulance_arm()
     g.backwards_gyro(500)
-    
+
 
 
 @print_function_name
@@ -81,7 +81,7 @@ def get_firefighters():
         g.drive_gyro_until_black_left()
         m.lift_ambulance_arm()
         g.drive_gyro_through_line_left()
-        
+
     else:
         g.drive_gyro_until_black_left()
         m.lift_ambulance_arm()
