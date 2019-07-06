@@ -1444,7 +1444,7 @@ def lfollow_backwards_bot_left_smooth_until(condition, time=c.SAFETY_TIME, shoul
         time = c.SAFETY_TIME
     sec = seconds() + time / 1000.0
     while seconds() < sec and not(condition()):
-        base_lfollow_backwards_bot_left_inside_line_smooth()
+        base_lfollow_backwards_bot_left_smooth()
     if should_stop:
         m.deactivate_motors()
 
@@ -1480,7 +1480,7 @@ def lfollow_backwards_bot_right_smooth_until(condition, time=c.SAFETY_TIME, shou
         time = c.SAFETY_TIME
     sec = seconds() + time / 1000.0
     while seconds() < sec and not(condition()):
-        base_lfollow_backwards_bot_right_inside_line_smooth()
+        base_lfollow_backwards_bot_right_smooth()
     if should_stop:
         m.deactivate_motors()
 
@@ -1737,7 +1737,7 @@ def lfollow_left_pid_until_black_right(time=c.SAFETY_TIME, should_open_and_close
 
 @print_function_name_with_arrows
 def lfollow_left_pid_until_black_third(time=c.SAFETY_TIME, should_stop=True, bias=0):
-    lfollow_left_pid_until(boolean=isThirdOnBlack, time=time, should_stop=should_stop, bias=bias)
+    lfollow_left_pid_until(boolean_functino=isThirdOnBlack, time=time, should_stop=should_stop, bias=bias)
 
 
 @print_function_name_with_arrows
