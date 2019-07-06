@@ -150,31 +150,31 @@ def extend_wrist(tics=3, ms=1, servo_position=c.WRIST_OUT_POS):
     move_wrist(servo_position, tics, ms)
     print "Wrist reached up position: %d" % get_servo_position(c.WRIST_SERVO)
 
-            
+
 def lower_arm(tics=3, ms=1, servo_position=c.ARM_DOWN_POS):
     print "Lowering arm to: %d" % servo_position
     move_arm(servo_position, tics, ms)
     print "Arm reached down position: %d" % get_servo_position(c.ARM_SERVO)
-            
+
 
 def lift_magnet_arm(tics=3, ms=1, servo_position=c.MAGNET_ARM_UP_POS):
     print "Lifting magnet arm to: %d" % servo_position
     move_magnet_arm(servo_position, tics, ms)
     print "Arm reached up position: %d" % get_servo_position(c.ARM_SERVO)
 
-            
+
 def lower_magnet_arm(tics=3, ms=1, servo_position=c.MAGNET_ARM_DOWN_POS):
     print "Lowering magnet arm to: %d" % servo_position
     move_magnet_arm(servo_position, tics, ms)
     print "Arm reached down position: %d" % get_servo_position(c.ARM_SERVO)
 
-        
+
 def retract_wrist(tics=3, ms=1, servo_position=c.WRIST_IN_POS):
     print "Retracting wrist to: %d" % servo_position
     move_wrist(servo_position, tics, ms)
     print "Wrist reached down position: %d" % get_servo_position(c.WRIST_SERVO)
-        
-      
+
+
 def open_claw(tics=3, ms=1, servo_position=c.CLAW_OPEN_POS):
     print "Opening claw to: %d" % servo_position
     move_claw(servo_position, tics, ms)
@@ -192,7 +192,7 @@ def lift_micro(tics=3, ms=1, servo_position=c.MICRO_UP_POS):
     move_micro(servo_position, tics, ms)
     print "Micro reached up position: %d" % get_servo_position(c.MICRO_SERVO)
 
-            
+
 def retract_micro(tics=3, ms=1, servo_position=c.MICRO_RETRACTED_POS):
     print "Retracting micro to: %d" % servo_position
     move_micro(servo_position, tics, ms)
@@ -219,7 +219,7 @@ def move_wrist(desired_wrist_position=c.WRIST_IN_POS, wrist_tics=3, wrist_ms=1):
         print "Invalid desired servo position\n"
         exit(86)
     move_servo(c.WRIST_SERVO, desired_wrist_position, wrist_tics, wrist_ms)
-            
+
 
 
 def move_magnet_arm(desired_magnet_arm_position=c.MAGNET_ARM_DOWN_POS, magnet_arm_tics=3, magnet_arm_ms=1):
@@ -253,7 +253,7 @@ def move_claw(desired_claw_position=c.CLAW_CLOSE_POS, claw_tics=3, claw_ms=1):
         print "Invalid desired servo position\n"
         exit(86)
     move_servo(c.CLAW_SERVO, desired_claw_position, claw_tics, claw_ms)
-        
+
 def move_servo(servo_port, desired_servo_position, tics=3, ms=1):
 # Moves a servo slowly to a given position from its current position. The servo and desire
 # Servo move speed = tics / msd position must be specified
@@ -291,7 +291,7 @@ def move_servo(servo_port, desired_servo_position, tics=3, ms=1):
     print "Completed move_servo()\n"
 
 
-def move_two_servos(servo_port, desired_servo_position, second_servo_port, second_desired_servo_position, tics=3, ms=1):
+def move_two_servos(servo_port, desired_servo_position, second_servo_port, desired_second_servo_position, tics=3, ms=1):
     # Moves a servo slowly to a given position from its current position. The servo and desire
     # Servo move speed = tics / msd position must be specified
     # >18 tics is too high
@@ -308,15 +308,15 @@ def move_two_servos(servo_port, desired_servo_position, second_servo_port, secon
     elif desired_servo_position < c.MIN_SERVO_LIMIT:
         print "Invalid desired servo position. Its too low.\n"
         exit(86)
-    if second_desired_servo_position > c.MAX_SERVO_LIMIT:
+    if desired_second_servo_position > c.MAX_SERVO_LIMIT:
         print "Invalid desired servo position. Its too high.\n"
         exit(86)
-    elif second_desired_servo_position < c.MIN_SERVO_LIMIT:
+    elif desired_second_servo_position < c.MIN_SERVO_LIMIT:
         print "Invalid desired servo position. Its too low.\n"
         exit(86)
     print "Speed = " + str(tics) + "/" + str(ms) + " tics per ms"
     steps = abs(desired_servo_position - intermediate_position) / tics
-    second_servo_tics = abs(second_desired_servo_position - second_intermediate_position) / steps
+    second_servo_tics = abs(desired_second_servo_position - second_intermediate_position) / steps
     print "Second servo speed = " + str(second_servo_tics) + "/" + str(ms) + " tics per ms"
     if tics > 18:
         print "Tic value is too high\n"
@@ -345,12 +345,12 @@ def move_two_servos(servo_port, desired_servo_position, second_servo_port, secon
             break
         msleep(ms)
     set_servo_position(servo_port, desired_servo_position)  # Ensures actual desired value is reached. Should be a minor point change
-    set_servo_position(second_servo_port, second_desired_servo_position)  # Ensures actual desired value is reached. Should be a minor point change
+    set_servo_position(second_servo_port, desired_second_servo_position)  # Ensures actual desired value is reached. Should be a minor point change
     msleep(30)
     print "Desired position reached. Curent position is %d" % get_servo_position(servo_port)
     print "Completed move_servo()\n"
-                
-                
+
+
 @print_function_name
 def extend_arm():
     mav(c.ARM_MOTOR, c.BASE_ARM_MOTOR_POWER)
@@ -369,7 +369,7 @@ def retract_arm():
     mav(c.ARM_MOTOR, 0)
     msleep(25)
     ao()
-            
+
 
 def move_servo_while_activating_motors(servo_port, desired_servo_position, tics=3, ms=1, left_motor_power=c.BASE_POWER, right_motor_power=c.BASE_POWER):
 # Moves a servo slowly to a given position from its current position. The servo and desire
