@@ -1,4 +1,4 @@
-# Incredibots Code from Regionals 2019
+# Incredibots Code from GCER 2019
 ## Check out [our wiki] for more information about us.
 [our wiki]: https://github.com/RockvilleRobotics/Incredibots2019/wiki
 
