@@ -1,4 +1,5 @@
 ## Roomba code goes here
 
 ### Roomba build:
-![Roomba_closeup_picture](https://user-images.githubusercontent.com/30140104/58767895-ea409880-855f-11e9-825f-1962d7ce37a7.jpg)
+![GCER 2019 Roomba](https://user-images.githubusercontent.com/32310846/61261001-4ea16b00-a74e-11e9-8c15-15e97814ec33.JPG)
+
