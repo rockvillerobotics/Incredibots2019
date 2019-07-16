@@ -1,4 +1,4 @@
 ## Legobot code goes here
 
 ### Legobot build:
-![GCER 2019 Legobot](https://user-images.githubusercontent.com/32310846/61260833-bf945300-a74d-11e9-9ee4-b06b8d3a4dde.jpg)
+![GCER 2019 Legobot](https://user-images.githubusercontent.com/32310846/61261313-76dd9980-a74f-11e9-84e1-e7bb3d71a278.jpg)
