@@ -5,9 +5,6 @@ import gyro as g
 import movement as m
 import utils as u
 
-# TODO pid before until
-# TODO add in other PID loops
-
 # -----------------------------HOW TO USE LFOLLOW COMMANDS------------------------
 # All lfollow commands follow a certain pattern which if you learn, you can come up
 # with commands without the need to look in this file. Keep in mind that these rules apply only to
