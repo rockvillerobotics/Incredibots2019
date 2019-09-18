@@ -79,7 +79,7 @@ def stop_for(time=1000):  # Same as msleep command, but stops the wheels.
 #------------------------------- No Print Movement -------------------------------
 # These, as the name implies, do the same thing as the basic movement commands just without the prints.
 # At one time, these were very useful commands. But, as time has gone on and techniques have been improved, they
-# have become obsolete. We keep them as an archaic reference to what things use to be. We're nostalgic like that.
+# have become obsolete. We keep them as an archaic reference to what things used to be. We're nostalgic like that.
 
 def drive_no_print(time=c.DEFAULT_DRIVE_TIME, should_stop=True, speed_multiplier=1.0):
     if time == 0:
