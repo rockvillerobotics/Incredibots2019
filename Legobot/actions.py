@@ -41,8 +41,6 @@ def get_blocks():
     s.lfollow_left_pid_until_black_right(bias=10)
 
 
-
-
 @print_function_name
 def deliver_ambulance_and_blocks():
     w.check_zones_hospital()
@@ -72,8 +70,7 @@ def deliver_ambulance_and_blocks():
     g.backwards_gyro_through_line_left(1100)
     m.lower_ambulance_arm()
     g.backwards_gyro(500)
-
-
+    
 
 @print_function_name
 def get_firefighters():
