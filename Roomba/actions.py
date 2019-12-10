@@ -9,20 +9,21 @@ import utils as u
  
 @print_function_name
 def first_position():
-    s.forwards_until_black_lfcliff()
-    s.forwards_until_white_lfcliff(0)
-    s.forwards_until_black_lfcliff(0)
-    m.turn_left()
-    s.forwards_until_black_lfcliff()
-    m.forwards(500)
-    s.backwards_until_black_lfcliff()
-    #s.turn_left_until_lfcliff_senses_black()
-    m.turn_left()
-    s.lfollow_lfcliff_until_rfcliff_senses_black_pid()
-    s.forwards_until_white_lfcliff()
-    m.forwards(600)
-    m.turn_right()
-    s.forwards_until_bump()
+    g.forwards_gyro_until_black_rfcliff()
+    g.forwards_gyro_until_white_rfcliff(0)
+    g.forwards_gyro_until_black_rfcliff(0)
+    #s.align_close_fcliffs()
+    msleep(100)
+    g.turn_left_gyro()
+    g.forwards_gyro_until_black_lfcliff()
+    g.forwards_gyro(700)
+    g.backwards_gyro_until_black_rfcliff()
+    g.turn_left_gyro()
+    s.lfollow_lfcliff_until_lfcliff_senses_black_pid()
+    s.forwards_gyro_until_white_lfcliff()
+    g.forwards_gyro(600)
+    g.turn_right_gyro()
+    s.forwards_gyro_until_bump()
     
         
     
