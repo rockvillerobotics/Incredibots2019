@@ -12,8 +12,9 @@ import utils as u
 def main():
     print "Starting main()\n"
     u.setup()
+    g.forwards_gyro_until_black_rfcliff()
     u.calibrate()  # You only need to include this command if you want the cliffs to sense better at the cost of speed.
-    a.first_position()
+    a.first_position()    
     print "Finished main\n"
     u.shutdown()
     
