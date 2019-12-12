@@ -15,11 +15,11 @@ def first_position():
     msleep(100)
     g.turn_left_gyro()
     g.forwards_gyro_until_black_lfcliff()
-    g.forwards_gyro(500)
-    g.turn_left_gyro(60)
-    s.lfollow_lfcliff_until_rfcliff_senses_black_pid()
+    g.forwards_gyro(600)
+    s.turn_left_until_lfcliff_senses_black()
+    s.lfollow_lfcliff_smooth_until_rfcliff_senses_black()
     g.turn_left_gyro(6)
-    
+
     
     
    
