@@ -20,6 +20,12 @@ def first_position():
     s.lfollow_lfcliff_smooth_until_rfcliff_senses_black()
     g.turn_left_gyro(6)
 
-    
+ @print_function_name
+ def first_position():
+    g.forwards_gyro_until_black_rfcliff()
+    g.forwards_gyro_until_white_rfcliff()
+    g.forwards_gyro_until_bump()
+    m.turn_left()
+    g.forwards_gyro_wall_assisted_on_right()      
     
    
